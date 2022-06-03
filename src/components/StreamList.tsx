@@ -1,3 +1,4 @@
+import { Link } from 'solid-app-router';
 import { Component, For } from 'solid-js';
 
 type StreamDetails = {
@@ -22,7 +23,7 @@ const StreamList: Component<StreamList> = (props) => {
     <div>
       <For each={props.streams}>
         {(stream) => {
-          return <li>{stream.title}</li>;
+          return <Link href={`/stream/${stream.id}`}>{stream.title}</Link>;
         }}
       </For>
       <p class="text-4xl text-yellow-400 text-center py-20"></p>
