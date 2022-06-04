@@ -1,18 +1,6 @@
 import { Link } from 'solid-app-router';
 import { Component, For } from 'solid-js';
-
-type StreamDetails = {
-  actualEndTime: string;
-  actualStartTime: string;
-  scheduledStartTime: string;
-};
-
-type Stream = {
-  id: string;
-  liveStreamingDetails: StreamDetails;
-  publishedAt: string;
-  title: string;
-};
+import { Stream } from '../utils/types';
 
 interface StreamList {
   streams: Stream[];

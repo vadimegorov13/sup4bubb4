@@ -7,12 +7,10 @@ const Home = lazy(() => import('./pages/Home'));
 
 const App: Component = () => {
   return (
-    <>
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/stream/:id" element={<Stream />} />
-      </Routes>
-    </>
+    <Routes>
+      <Route path="/" element={<Home />} />
+      <Route path="/stream/:id" element={<Stream />} />
+    </Routes>
   );
 };
 

@@ -1,10 +1,18 @@
-import { doc, getFirestore } from 'firebase/firestore';
+import 'firebase/app';
+import { collection, doc, getFirestore } from 'firebase/firestore';
 import { useFirestore } from 'solid-firebase';
+
 const db = getFirestore();
 
-const getStream = (id: string) => {
-  console.log(id);
-  return useFirestore(doc(db, 'streams', id));
+const getStreams = () => {
+  return useFirestore(collection(db, 'streams'));
 };
 
-export { getStream };
+const getStream = (id: string) => {
+  const stream = useFirestore(doc(db, 'streams', id));
+  const playlist = useFirestore(doc(db, 'songs', id));
+
+  return [stream, playlist];
+};
+
+export { getStreams, getStream };

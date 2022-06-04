@@ -1,25 +1,11 @@
-import { collection, getFirestore } from 'firebase/firestore';
-import { useFirestore } from 'solid-firebase';
 import type { Component } from 'solid-js';
 import { Match, Switch } from 'solid-js';
 import StreamList from '../components/StreamList';
-
-type StreamDetails = {
-  actualEndTime: string;
-  actualStartTime: string;
-  scheduledStartTime: string;
-};
-
-type Stream = {
-  id: string;
-  liveStreamingDetails: StreamDetails;
-  publishedAt: string;
-  title: string;
-};
+import { getStreams } from '../utils/hooks';
+import { Stream } from '../utils/types';
 
 const Home: Component = () => {
-  const db = getFirestore();
-  const streams = useFirestore(collection(db, 'streams'));
+  const streams = getStreams()
 
   return (
     <div>
