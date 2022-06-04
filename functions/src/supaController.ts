@@ -118,14 +118,16 @@ const getSongs = async (req: Request, res: Response) => {
   } = req;
 
   try {
-    const songs: Song[] = [];
-    await db
-      .collection("streams")
-      .doc(streamId)
+    const songs: Song[] = await db
       .collection("songs")
+      .doc(streamId)
       .get()
-      .then((snapshot) => {
-        snapshot.forEach((doc: any) => songs.push(doc.data()));
+      .then((res) => {
+        const songsData = res.data()
+
+        if (songsData) return songsData.playlist as Song[]
+        return []
+        // snapshot.forEach((doc: any) => songs.push(doc.data()));
       });
 
     return res.status(200).json(songs);

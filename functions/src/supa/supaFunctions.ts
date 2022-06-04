@@ -56,6 +56,7 @@ const getStreamData = async (items: any, streams: Stream[]) => {
             id: item.id,
             title: item.snippet.title,
             publishedAt: item.snippet.publishedAt,
+            thumbnail: item.snippet.thumbnails.high.url,
             liveStreamingDetails: item.liveStreamingDetails,
           });
         }
@@ -86,7 +87,6 @@ const getHistory = async (
       items.map((item: any) => {
         songs.push({
           id: item.song.videoId,
-          streamId: "",
           duration: item.song.duration,
           title: item.song.title,
           channel: item.song.channel,
@@ -110,34 +110,53 @@ const getHistory = async (
 };
 
 const saveStream = async (stream: Stream, songs: Song[]) => {
+  console.log("saving stream")
   await db
     .collection("streams")
     .doc(stream.id)
     .set(stream)
-    .then(() => {
-      const startTime = stream.liveStreamingDetails.actualStartTime.slice(
-        0,
-        10
-      );
-      const endTime =
-        stream.liveStreamingDetails.actualEndTime.slice(0, 10) || "";
+    .then(async () => {
+      const startTime = stream.liveStreamingDetails.actualStartTime.slice(0, 10);
+      const endTime = stream.liveStreamingDetails.actualEndTime.slice(0, 10) || "";
 
-      // console.log(`Gettings songs between ${startTime} and ${endTime}`);
-      songs.map(async (song) => {
+      // await db
+      //   .collection("songs")
+      //   .doc(stream.id)
+      //   .set({ playlist: [] })
+
+      // const _datarwt: any = [];
+
+      // songs.forEach((song) => {
+      //   const createdAt = song.createdAt.slice(0, 10);
+
+      //   if (createdAt === startTime || createdAt === endTime) {
+      //     _datarwt.push( db
+      //       .collection("songs")
+      //       .doc(stream.id)
+      //       .update({
+      //         playlist: FieldValue.arrayUnion(song)
+      //       }));
+      //   }
+      // });
+
+      // console.log("save songs")
+      // await Promise.all( _datarwt );
+
+      const playlist: Song[] = [];
+
+      songs.forEach((song) => {
         const createdAt = song.createdAt.slice(0, 10);
 
         if (createdAt === startTime || createdAt === endTime) {
-          song.streamId = stream.id;
-          // stream.songs.push(song);
-
-          const songRef = db
-            .collection("streams")
-            .doc(stream.id)
-            .collection("songs")
-            .doc(song.id);
-          await songRef.set(song);
+          playlist.push(song)
         }
       });
+
+      console.log("save songs")
+      await db
+        .collection("songs")
+        .doc(stream.id)
+        .set({ playlist: playlist })
     });
 };
 

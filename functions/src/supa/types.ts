@@ -6,7 +6,6 @@ type User = {
 
 type Song = {
   id: string;
-  streamId: string;
   duration: number;
   title: string;
   channel: string;
@@ -24,6 +23,7 @@ type Stream = {
   id: string;
   title: string;
   publishedAt: string;
+  thumbnail: string;
   liveStreamingDetails: StreamDetails;
 };
 
