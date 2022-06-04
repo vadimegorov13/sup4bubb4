@@ -6,35 +6,34 @@ echo '🏗️👷 Styling, testing and building the project before committing'
 # Check Prettier standards
 npm run check-format ||
 (
-    echo '😱😵🤢🤮 Bad styling 😱😵🤢🤮
-    Prettier Check Failed. Run "npm run format", add changes, and try commit again.';
+    echo 'Prettier Check Failed. 
+    Run "npm run format", add changes, and try commit again.';
     false;
 )
 
 # Check ESLint Standards
 npm run check-lint ||
 (
-    echo '😤🏀👋😤 Get that weak shit out of here! 😤🏀👋😤
-    ESLint Check Failed. Make the required changes listed above, add changes and try to commit again.'
+    echo 'ESLint Check Failed. 
+    Make the required changes listed above, add changes and try to commit again.'
     false;
 )
 
 # Check tsconfig standards
 npm run check-types ||
 (
-    echo '🤡😂❌🤡 Failed Type check. 🤡😂❌🤡
-    Are you seriously trying to write that? Make the changes required above.'
+    echo 'Type Check Failed.
+    Make the changes required above.'
     false;
 )
 
 # If everything passes... Now we can commit
-echo '🤔🤔🤔🤔... Alright.... Code looks good to me... Trying to build now. 🤔🤔🤔🤔'
+echo 'Building...'
 
 npm run build ||
 (
-    echo '❌👷🔨❌ Better call Bob... Because your build failed ❌👷🔨❌
-            Remix build failed: View the errors above to see why.
-    '
+    echo 'Build Failed.
+        Vite build failed: View the errors above to see why.'
     false;
 )
 
