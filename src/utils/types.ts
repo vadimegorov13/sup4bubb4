@@ -10,3 +10,18 @@ export type Stream = {
   publishedAt: string;
   title: string;
 };
+
+type User = {
+  providerId: string;
+  username: string;
+  subscriber?: boolean;
+};
+
+export type Song = {
+  id: string;
+  duration: number;
+  title: string;
+  channel: string;
+  createdAt: string;
+  user: User;
+};

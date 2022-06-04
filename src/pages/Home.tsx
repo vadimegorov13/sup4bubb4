@@ -1,11 +1,11 @@
-import type { Component } from 'solid-js';
+import { Component } from 'solid-js';
 import { Match, Switch } from 'solid-js';
 import StreamList from '../components/StreamList';
 import { getStreams } from '../utils/hooks';
 import { Stream } from '../utils/types';
 
 const Home: Component = () => {
-  const streams = getStreams()
+  const streams = getStreams();
 
   return (
     <div>
