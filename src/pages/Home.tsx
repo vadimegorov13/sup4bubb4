@@ -1,15 +1,15 @@
-import { Component } from 'solid-js';
-import { Match, Switch } from 'solid-js';
-import StreamList from '../components/StreamList';
+import { Component, lazy, Match, Switch } from 'solid-js';
 import { getStreams } from '../utils/hooks';
 import { Stream } from '../utils/types';
+
+const StreamList = lazy(() => import('../components/StreamList'));
 
 const Home: Component = () => {
   const streams = getStreams();
 
   return (
-    <div>
-      <p class="text-4xl text-yellow-400 text-center py-20">Home page</p>
+    <>
+      <p class="text-4xl text-yellow-400 text-center py-5">Home page</p>
       <Switch>
         <Match when={streams.loading}>
           <p>Loading...</p>
@@ -21,7 +21,7 @@ const Home: Component = () => {
           <StreamList streams={streams.data as Stream[]} />
         </Match>
       </Switch>
-    </div>
+    </>
   );
 };
 

@@ -1,20 +1,19 @@
-import { Link } from 'solid-app-router';
 import { Component, For } from 'solid-js';
 import { Stream } from '../utils/types';
+import StreamCard from './StreamCard';
 
-interface StreamList {
+interface StreamListProps {
   streams: Stream[];
 }
 
-const StreamList: Component<StreamList> = (props) => {
+const StreamList: Component<StreamListProps> = (props) => {
   return (
-    <div>
+    <div class="p-10 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5">
       <For each={props.streams}>
         {(stream) => {
-          return <Link href={`/stream/${stream.id}`}>{stream.title}</Link>;
+          return <StreamCard stream={stream} />;
         }}
       </For>
-      <p class="text-4xl text-yellow-400 text-center py-20"></p>
     </div>
   );
 };

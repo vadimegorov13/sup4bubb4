@@ -6,9 +6,10 @@ type StreamDetails = {
 
 export type Stream = {
   id: string;
-  liveStreamingDetails: StreamDetails;
-  publishedAt: string;
   title: string;
+  thumbnail: string;
+  publishedAt: string;
+  liveStreamingDetails: StreamDetails;
 };
 
 type User = {

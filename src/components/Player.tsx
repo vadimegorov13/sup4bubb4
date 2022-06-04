@@ -1,11 +1,12 @@
 import { Component, For } from 'solid-js';
-import { Song } from '../utils/types';
+import { Song, Stream } from '../utils/types';
 
-interface PlaylistType {
+interface PlayerProps {
+  stream: Stream;
   playlist: Song[];
 }
 
-const Playlist: Component<PlaylistType> = (props) => {
+const Player: Component<PlayerProps> = (props) => {
   return (
     <div>
       <p class="text-4xl text-yellow-400 text-center py-20">Song list</p>
@@ -18,4 +19,4 @@ const Playlist: Component<PlaylistType> = (props) => {
   );
 };
 
-export default Playlist;
+export default Player;
