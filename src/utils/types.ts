@@ -7,8 +7,8 @@ type StreamDetails = {
 export type Stream = {
   id: string;
   title: string;
-  thumbnail: string;
   publishedAt: string;
+  duration: string;
   liveStreamingDetails: StreamDetails;
 };
 

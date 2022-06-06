@@ -9,7 +9,7 @@ const Home: Component = () => {
 
   return (
     <>
-      <p class="text-4xl text-yellow-400 text-center py-5">Home page</p>
+      <p class="text-4xl text-yellow-400 text-center pt-8">sup4bubb4</p>
       <Switch>
         <Match when={streams.loading}>
           <p>Loading...</p>
