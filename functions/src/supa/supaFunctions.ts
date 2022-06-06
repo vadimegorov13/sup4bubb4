@@ -56,7 +56,7 @@ const getStreamData = async (items: any, streams: Stream[]) => {
             id: item.id,
             title: item.snippet.title,
             publishedAt: item.snippet.publishedAt,
-            thumbnail: item.snippet.thumbnails.high.url,
+            duration: item.contentDetails.duration,
             liveStreamingDetails: item.liveStreamingDetails,
           });
         }
@@ -118,29 +118,6 @@ const saveStream = async (stream: Stream, songs: Song[]) => {
     .then(async () => {
       const startTime = stream.liveStreamingDetails.actualStartTime.slice(0, 10);
       const endTime = stream.liveStreamingDetails.actualEndTime.slice(0, 10) || "";
-
-      // await db
-      //   .collection("songs")
-      //   .doc(stream.id)
-      //   .set({ playlist: [] })
-
-      // const _datarwt: any = [];
-
-      // songs.forEach((song) => {
-      //   const createdAt = song.createdAt.slice(0, 10);
-
-      //   if (createdAt === startTime || createdAt === endTime) {
-      //     _datarwt.push( db
-      //       .collection("songs")
-      //       .doc(stream.id)
-      //       .update({
-      //         playlist: FieldValue.arrayUnion(song)
-      //       }));
-      //   }
-      // });
-
-      // console.log("save songs")
-      // await Promise.all( _datarwt );
 
       const playlist: Song[] = [];
 

@@ -5,7 +5,7 @@ const SE_API = `https://api.streamelements.com/kappa/v2/songrequest/${SE_ID}/his
 const PLAYLIST_API =
   "https://youtube.googleapis.com/youtube/v3/playlistItems?part=contentDetails";
 const VIDEOS_API =
-  "https://youtube.googleapis.com/youtube/v3/videos?part=status%2C%20snippet%2C%20liveStreamingDetails";
+  "https://youtube.googleapis.com/youtube/v3/videos?part=status%2C%20snippet%2C%20liveStreamingDetails%2C%20contentDetails";
 
 const playlistAPI = (nextPageToken: string, maxResult: number) => {
   return `${PLAYLIST_API}&maxResults=${maxResult}&pageToken=${nextPageToken}&playlistId=${PLAYLIST_ID}&key=${API_KEY}`;

@@ -23,7 +23,7 @@ type Stream = {
   id: string;
   title: string;
   publishedAt: string;
-  thumbnail: string;
+  duration: string;
   liveStreamingDetails: StreamDetails;
 };
 
