@@ -29,11 +29,19 @@
 </script>
 
 <script lang="ts">
-  import StreamComponent from "../../components/Stream.svelte";
+  import { onMount } from "svelte";
+  // import StreamComponent from "../../components/Stream.svelte";
   import type { Song, Stream } from "../../utils/types";
 
   export let stream: Stream;
   export let songs: Song[] = [];
+
+  let StreamComponent: any;
+
+  onMount(async () => {
+    const module = await import("../../components/Stream.svelte");
+    StreamComponent = module.default;
+  });
 </script>
 
 <svelte:head>
@@ -42,5 +50,5 @@
 
 <div>
   <h1>{stream.title}</h1>
-  <StreamComponent {stream} {songs} />
+  <svelte:component this={StreamComponent} {stream} {songs} />
 </div>

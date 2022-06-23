@@ -55,7 +55,7 @@ export const getSongsTiming = async (startTime: string, songs: Song[]) => {
         startTime:
           (new Date(song.createdAt).getTime() - new Date(startTime).getTime()) /
             1000 -
-          song.duration + 0,
+          song.duration - 30,
       };
     } else {
       return {
@@ -63,7 +63,7 @@ export const getSongsTiming = async (startTime: string, songs: Song[]) => {
         startTime:
           (new Date(sortedSongs[i - 1].createdAt).getTime() -
             new Date(startTime).getTime()) /
-          1000 + 0,
+          1000 - 30,
       };
     }
   });

@@ -1,11 +1,12 @@
 <script lang="ts">
+  import { createEventDispatcher } from "svelte";
   import type { Song } from "../utils/types";
   import Youtube from "./Youtube.svelte";
 
   export let time: number;
   export let songs: Song[];
   export let vodState: number;
-  export let songVolume: number
+  export let songVolume: number;
 
   let player: any;
   let playertime: number;
@@ -25,14 +26,14 @@
         if (i === songs.length - 1) {
           currentSong = song;
           player.loadVideoById(currentSong.id, time - currentSong.startTime);
-          player.setVolume(songVolume)
+          player.setVolume(songVolume);
           return;
         }
 
         if (Math.floor(time) < Math.floor(songs[i + 1].startTime)) {
           currentSong = song;
           player.loadVideoById(currentSong.id, time - currentSong.startTime);
-          player.setVolume(songVolume)
+          player.setVolume(songVolume);
           return;
         }
       }
@@ -47,20 +48,11 @@
   };
 
   $: time && getSong();
-
   $: vodState && changeState();
 </script>
 
-<br />
 <Youtube
   videoId={currentSong.id}
   on:CurrentPlayTime={({ detail }) => (playertime = detail)}
   bind:this={player}
 />
-
-<p>{currentSong.title}</p>
-<br />
-
-<!-- <button on:click={() => player.play()}>play</button><br />
-<button on:click={() => player.pause()}>pause</button><br />
-<br /> -->

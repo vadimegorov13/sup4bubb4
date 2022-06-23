@@ -3,7 +3,7 @@
 require('sirv');
 require('polka');
 require('compression');
-require('./server-22a171a4.js');
+require('./server-bf0016fd.js');
 require('express');
 require('fs');
 require('path');
