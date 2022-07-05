@@ -1,19 +1,29 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import StreamCard from "./StreamCard.svelte";
-  import { getStreams } from "../utils/hooks";
-  import type { Stream } from "../utils/types";;
+  import { db } from "../firebase/firebase";
+  import type { Stream } from "../utils/types";
 
-  export let streams: Stream[];
+  let StreamCard: any;
+  let streams: Stream[] = [];
   let loading = true;
   $: isLoaded = streams && !loading;
 
   onMount(async () => {
-    setTimeout(() => {
-      loading = false;
-    }, 500);
+    const module = await import("./StreamCard.svelte");
+    StreamCard = module.default;
 
-    streams = await getStreams();
+    await db
+      .collection("streams")
+      .orderBy("publishedAt", "desc")
+      .get()
+      .then((res) => {
+        res.forEach((doc: any) => {
+          // doc.data() is never undefined for query doc snapshots
+          streams.push(doc.data());
+        });
+      });
+
+    loading = false;
   });
 </script>
 
@@ -22,7 +32,7 @@
 >
   {#if isLoaded}
     {#each streams as stream}
-      <StreamCard {stream} />
+      <svelte:component this={StreamCard} {stream} />
     {/each}
   {:else}
     Loading
