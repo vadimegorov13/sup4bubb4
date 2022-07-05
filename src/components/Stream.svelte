@@ -10,16 +10,20 @@
   let player: any;
   let time: number;
   let vodState: number;
-  let songVolume: number = 10
+  let songVolume: number = 10;
 </script>
 
-<div class="container">
-  <Youtube
-    videoId={stream.id}
-    on:CurrentPlayTime={({ detail }) => (time = detail)}
-    on:PlayerStateChange={({ detail }) => (vodState = detail)}
-    bind:this={player}
-  />
+
+
+<div class="w-screen h-screen">
+  <div class="w-full h-full">
+    <Youtube
+      videoId={stream.id}
+      on:CurrentPlayTime={({ detail }) => (time = detail)}
+      on:PlayerStateChange={({ detail }) => (vodState = detail)}
+      bind:this={player}
+    />
+  </div>
 
   <div>
     <p>
@@ -32,7 +36,7 @@
     <p>Or: {Math.floor(time)}</p>
   </div>
 
-  <Song {time} {songs} {vodState} {songVolume}/>
+  <Song {time} {songs} {vodState} {songVolume} />
 
   {#each songs as song}
     <div>

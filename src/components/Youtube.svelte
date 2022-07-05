@@ -84,4 +84,4 @@
   };
 </script>
 
-<div id={divId} />
+<div id={divId} class="h-full w-full"/>

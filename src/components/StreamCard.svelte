@@ -11,7 +11,7 @@
   transition:fade={{ delay: 100, duration: 1000 }}
   class="rounded overflow-hidden shadow-lg transform transition duration-500 hover:scale-110"
 >
-  <a sapper:prefetch rel="external" href={`stream/${stream.id}`}>
+  <a sapper:prefetch rel="external" href={`watch/${stream.id}`}>
     <div class="relative">
       <img
         class="w-full"
