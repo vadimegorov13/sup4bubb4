@@ -7,8 +7,11 @@
 <div style="background-color: #181818" class="min-h-screen text-white">
   <Nav {segment} />
 
-  <div class="container p-10 mx-auto">
+  {#if segment === "watch"}
     <slot />
-  </div>
+  {:else}
+    <div class="container p-10 mx-auto">
+      <slot />
+    </div>
+  {/if}
 </div>
-
