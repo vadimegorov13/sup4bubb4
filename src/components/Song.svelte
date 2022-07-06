@@ -10,7 +10,7 @@
 
   let player: any;
   let playertime: number;
-  let currentSong: Song = songs[2];
+  let currentSong: Song = songs[0];
 
   const getSong = () => {
     if (time < songs[0].startTime) {

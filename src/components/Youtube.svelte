@@ -45,7 +45,6 @@
   };
 
   export const loadVideoById = (id, startSeconds = 0) => {
-    console.log(startSeconds)
     player.loadVideoById(id, startSeconds);
   };
 

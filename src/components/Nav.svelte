@@ -2,15 +2,15 @@
   export let segment: string;
 </script>
 
-<nav class="flex items-center justify-between flex-wrap bg-teal-500 p-6">
-  <div class="flex items-center flex-shrink-0 text-white mr-6">
+<nav class="flex items-center justify-between flex-wrap p-4" style="background-color: #1E2021">
+  <div class="flex items-center flex-shrink-0 text-white mr-4">
     <span class="font-semibold text-xl tracking-tight">
       <a aria-current={segment === undefined ? "page" : undefined} href=".">
         supp4bubb4
       </a>
     </span>
   </div>
-  <div class="w-full block flex-grow lg:flex lg:items-center lg:w-auto">
+  <!-- <div class="block flex-grow lg:flex lg:items-center lg:w-auto">
     <div class="text-sm lg:flex-grow">
       <a
         aria-current={segment === "about" ? "page" : undefined}
@@ -20,5 +20,5 @@
         about
       </a>
     </div>
-  </div>
+  </div> -->
 </nav>
