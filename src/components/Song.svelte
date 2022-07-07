@@ -1,7 +1,7 @@
 <script lang="ts">
-  import { createEventDispatcher } from "svelte";
-  import { onMount } from "svelte";
-  import type { Song } from "../utils/types";
+  import { createEventDispatcher } from 'svelte';
+  import { onMount } from 'svelte';
+  import type { Song } from '../utils/types';
 
   export let time: number;
   export let songs: Song[];
@@ -15,7 +15,7 @@
   let currentSong: Song = songs[0];
 
   onMount(async () => {
-    const module = await import("./Youtube.svelte");
+    const module = await import('./Youtube.svelte');
     YoutubeComponent = module.default;
   });
 

@@ -1,5 +1,5 @@
 <script context="module">
-  import { convertHMS,getSongsTiming } from "../../utils/helperFunctions";
+  import { convertHMS, getSongsTiming } from '../../utils/helperFunctions';
 
   export async function preload({ params }) {
     const resStream = await this.fetch(
@@ -29,8 +29,8 @@
 </script>
 
 <script lang="ts">
-  import { onMount } from "svelte";
-  import type { Song,Stream } from "../../utils/types";
+  import { onMount } from 'svelte';
+  import type { Song, Stream } from '../../utils/types';
 
   export let stream: Stream;
   export let songs: Song[] = [];
@@ -44,8 +44,8 @@
   let songVolume: number = 10;
 
   onMount(async () => {
-    const songModule = await import("../../components/Song.svelte");
-    const youtubeModule = await import("../../components/Youtube.svelte");
+    const songModule = await import('../../components/Song.svelte');
+    const youtubeModule = await import('../../components/Youtube.svelte');
     SongComponent = songModule.default;
     YoutubeComponent = youtubeModule.default;
   });

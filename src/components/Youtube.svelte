@@ -1,22 +1,22 @@
 <script>
-  import { onMount } from "svelte";
-  import { createEventDispatcher } from "svelte";
+  import { onMount } from 'svelte';
+  import { createEventDispatcher } from 'svelte';
 
   export let videoId;
   let player;
-  let divId = "player_" + videoId;
+  let divId = 'player_' + videoId;
 
   onMount(() => {
-    const tag = document.createElement("script");
+    const tag = document.createElement('script');
 
-    tag.src = "https://www.youtube.com/iframe_api";
-    const firstScriptTag = document.getElementsByTagName("script")[0];
+    tag.src = 'https://www.youtube.com/iframe_api';
+    const firstScriptTag = document.getElementsByTagName('script')[0];
     firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 
     window.onYouTubeIframeAPIReady = () =>
-      window.dispatchEvent(new Event("iframeApiReady"));
+      window.dispatchEvent(new Event('iframeApiReady'));
 
-    window.addEventListener("iframeApiReady", function (e) {
+    window.addEventListener('iframeApiReady', function (e) {
       player = new YT.Player(divId, {
         videoId,
         playerVars: { rel: 0 },
@@ -51,36 +51,36 @@
   const dispatch = createEventDispatcher();
 
   const playerIsReady = () => {
-    dispatch("Ready");
+    dispatch('Ready');
     setInterval(() => {
-      dispatch("CurrentPlayTime", player.getCurrentTime());
+      dispatch('CurrentPlayTime', player.getCurrentTime());
     }, 1000);
   };
 
   const playerStateChange = ({ data }) => {
-    dispatch("PlayerStateChange", data);
+    dispatch('PlayerStateChange', data);
 
-    let strReturn = "";
+    let strReturn = '';
     if (data == -1) {
-      strReturn = "(unstarted)";
+      strReturn = '(unstarted)';
     }
     if (data == 0) {
-      strReturn = "(ended)";
+      strReturn = '(ended)';
     }
     if (data == 1) {
-      strReturn = "(playing)";
+      strReturn = '(playing)';
     }
     if (data == 2) {
-      strReturn = "(paused)";
+      strReturn = '(paused)';
     }
     if (data == 3) {
-      strReturn = "(buffering)";
+      strReturn = '(buffering)';
     }
     if (data == 5) {
-      strReturn = "(video cued).";
+      strReturn = '(video cued).';
     }
-    dispatch("PlayerStateChangeString", strReturn);
+    dispatch('PlayerStateChangeString', strReturn);
   };
 </script>
 
-<div id={divId} class="h-full w-full"/>
+<div id={divId} class="h-full w-full" />

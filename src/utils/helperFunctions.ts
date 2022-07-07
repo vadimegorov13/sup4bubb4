@@ -1,6 +1,6 @@
-import moment from "moment";
-import { parse } from "iso8601-duration";
-import type { Song, Stream } from "./types";
+import moment from 'moment';
+import { parse } from 'iso8601-duration';
+import type { Song, Stream } from './types';
 
 const parseDuration = (duration: string) => {
   const parsedDuration = parse(duration);
@@ -28,15 +28,15 @@ export const convertHMS = (sec: number) => {
   let seconds: number | string = Math.floor(sec - hours * 3600 - minutes * 60); //  get seconds
   // add 0 if value < 10; Example: 2 => 02
   if (hours < 10) {
-    hours = "0" + hours;
+    hours = '0' + hours;
   }
   if (minutes < 10) {
-    minutes = "0" + minutes;
+    minutes = '0' + minutes;
   }
   if (seconds < 10) {
-    seconds = "0" + seconds;
+    seconds = '0' + seconds;
   }
-  return hours + ":" + minutes + ":" + seconds; // Return is HH : MM : SS
+  return hours + ':' + minutes + ':' + seconds; // Return is HH : MM : SS
 };
 
 export const getTime = (stream: Stream) => {
@@ -55,7 +55,8 @@ export const getSongsTiming = async (startTime: string, songs: Song[]) => {
         startTime:
           (new Date(song.createdAt).getTime() - new Date(startTime).getTime()) /
             1000 -
-          song.duration - 30,
+          song.duration -
+          30,
       };
     } else {
       return {
@@ -63,7 +64,8 @@ export const getSongsTiming = async (startTime: string, songs: Song[]) => {
         startTime:
           (new Date(sortedSongs[i - 1].createdAt).getTime() -
             new Date(startTime).getTime()) /
-          1000 - 30,
+            1000 -
+          30,
       };
     }
   });

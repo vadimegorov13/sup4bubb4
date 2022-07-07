@@ -13,7 +13,9 @@
     "export": "run-s build:css build:export",
     "start": "node __sapper__/build",
     "serve": "serve ___sapper__/export",
-    "validate": "svelte-check --ignore src/node_modules/@sapper"
+    "validate": "svelte-check --ignore src/node_modules/@sapper",
+    "check-format": "prettier --check .",
+    "format": "prettier --write ."
   },
   "dependencies": {
     "compression": "^1.7.1",
@@ -50,6 +52,8 @@
     "postcss-import": "^14.1.0",
     "postcss-load-config": "^4.0.1",
     "postcss-preset-env": "^7.7.1",
+    "prettier": "^2.7.1",
+    "prettier-plugin-svelte": "^2.7.0",
     "rollup": "^2.3.4",
     "rollup-plugin-svelte": "^7.0.0",
     "rollup-plugin-terser": "^7.0.0",

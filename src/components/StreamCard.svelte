@@ -1,7 +1,7 @@
 <script lang="ts">
-  import type { Stream } from "../utils/types";
-  import { fade } from "svelte/transition";
-  import { getTime } from "../utils/helperFunctions";
+  import type { Stream } from '../utils/types';
+  import { fade } from 'svelte/transition';
+  import { getTime } from '../utils/helperFunctions';
 
   export let stream: Stream;
   const { date, durationStr } = getTime(stream);

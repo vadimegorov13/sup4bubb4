@@ -1,7 +1,7 @@
 <script lang="ts">
-  import { onMount } from "svelte";
-  import { db } from "../firebase/firebase";
-  import type { Stream } from "../utils/types";
+  import { onMount } from 'svelte';
+  import { db } from '../firebase/firebase';
+  import type { Stream } from '../utils/types';
 
   let StreamCard: any;
   let streams: Stream[] = [];
@@ -9,12 +9,12 @@
   $: isLoaded = streams && !loading;
 
   onMount(async () => {
-    const module = await import("../components/StreamCard.svelte");
+    const module = await import('../components/StreamCard.svelte');
     StreamCard = module.default;
 
     await db
-      .collection("streams")
-      .orderBy("publishedAt", "desc")
+      .collection('streams')
+      .orderBy('publishedAt', 'desc')
       .get()
       .then((res) => {
         res.forEach((doc: any) => {

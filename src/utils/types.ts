@@ -25,5 +25,5 @@ export type Song = {
   channel: string;
   createdAt: string;
   user: User;
-  startTime?: number
+  startTime?: number;
 };
