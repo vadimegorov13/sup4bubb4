@@ -23,6 +23,9 @@ const onwarn = (warning, onwarn) =>
   warning.code === 'THIS_IS_UNDEFINED' ||
   onwarn(warning);
 
+const serverOutput = config.server.output();
+serverOutput.format = 'esm';
+
 export default {
   client: {
     input: config.client.input().replace(/\.js$/, '.ts'),
@@ -91,7 +94,7 @@ export default {
 
   server: {
     input: { server: config.server.input().server.replace(/\.js$/, '.ts') },
-    output: config.server.output(),
+    output: serverOutput,
     plugins: [
       replace({
         preventAssignment: true,

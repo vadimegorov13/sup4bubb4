@@ -2,6 +2,7 @@
   "name": "sup4bubb4",
   "description": "TODO",
   "version": "0.0.1",
+  "type": "module",
   "scripts": {
     "watch:css": "postcss src/assets/global.pcss -o static/global.css -w",
     "watch:dev": "sapper dev",
