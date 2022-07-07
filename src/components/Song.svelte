@@ -1,16 +1,23 @@
 <script lang="ts">
   import { createEventDispatcher } from "svelte";
+  import { onMount } from "svelte";
   import type { Song } from "../utils/types";
-  import Youtube from "./Youtube.svelte";
 
   export let time: number;
   export let songs: Song[];
   export let vodState: number;
   export let songVolume: number;
 
+  let YoutubeComponent: any;
+
   let player: any;
   let playertime: number;
   let currentSong: Song = songs[0];
+
+  onMount(async () => {
+    const module = await import("./Youtube.svelte");
+    YoutubeComponent = module.default;
+  });
 
   const getSong = () => {
     if (time < songs[0].startTime) {
@@ -51,7 +58,8 @@
   $: vodState && changeState();
 </script>
 
-<Youtube
+<svelte:component
+  this={YoutubeComponent}
   videoId={currentSong.id}
   on:CurrentPlayTime={({ detail }) => (playertime = detail)}
   bind:this={player}

@@ -1,5 +1,5 @@
 <script context="module">
-  import { convertHMS, getSongsTiming } from "../../utils/helperFunctions";
+  import { convertHMS,getSongsTiming } from "../../utils/helperFunctions";
 
   export async function preload({ params }) {
     const resStream = await this.fetch(
@@ -29,17 +29,26 @@
 </script>
 
 <script lang="ts">
-  import type { Song, Stream } from "../../utils/types";
-  import Youtube from "../../components/Youtube.svelte";
-  import SongComponent from "../../components/Song.svelte";
+  import { onMount } from "svelte";
+  import type { Song,Stream } from "../../utils/types";
 
   export let stream: Stream;
   export let songs: Song[] = [];
+
+  let SongComponent: any;
+  let YoutubeComponent: any;
 
   let player: any;
   let time: number;
   let vodState: number;
   let songVolume: number = 10;
+
+  onMount(async () => {
+    const songModule = await import("../../components/Song.svelte");
+    const youtubeModule = await import("../../components/Youtube.svelte");
+    SongComponent = songModule.default;
+    YoutubeComponent = youtubeModule.default;
+  });
 </script>
 
 <svelte:head>
@@ -49,7 +58,8 @@
 <div class="flex flex-col min-h-screen max-h-screen overflow-hidden">
   <div class="flex flex-grow overflow-hidden w-full">
     <div class="w-full sm:w-4/6 md:w-4/6 lg:w-3/4 xl:w-3/4">
-      <Youtube
+      <svelte:component
+        this={YoutubeComponent}
         videoId={stream.id}
         on:CurrentPlayTime={({ detail }) => (time = detail)}
         on:PlayerStateChange={({ detail }) => (vodState = detail)}
@@ -72,7 +82,13 @@
     >
       {#if songs.length > 0}
         <div>
-          <SongComponent {time} {songs} {vodState} {songVolume} />
+          <svelte:component
+            this={SongComponent}
+            {time}
+            {songs}
+            {vodState}
+            {songVolume}
+          />
         </div>
         <ul class="overflow-y-auto">
           {#each songs as song}
