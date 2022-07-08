@@ -1,5 +1,5 @@
 <script context="module">
-  import { convertHMS, getSongsTiming } from '../../utils/helperFunctions';
+  import { getSongsTiming } from '../../utils/helperFunctions';
 
   export async function preload({ params }) {
     const resStream = await this.fetch(
@@ -32,74 +32,53 @@
   import { onMount } from 'svelte';
   import type { Song, Stream } from '../../utils/types';
 
-  export let stream: Stream;
-  export let songs: Song[] = [];
-
   let SongComponent: any;
   let YoutubeComponent: any;
-  let SongCardComponent: any;
-
-  let player: any;
-  let time: number;
-  let vodState: number;
-  let songVolume: number = 10;
 
   onMount(async () => {
     const songModule = await import('../../components/Song.svelte');
     const youtubeModule = await import('../../components/Youtube.svelte');
-    const songCardModule = await import('../../components/SongCard.svelte');
     SongComponent = songModule.default;
     YoutubeComponent = youtubeModule.default;
-    SongCardComponent = songCardModule.default;
   });
+
+  export let stream: Stream;
+  export let songs: Song[] = [];
+
+  let streamPlayer: any;
+  let streamTime: number;
+  let streamState: number;
+  let songVolume: number = 10;
 </script>
 
 <svelte:head>
   <title>{stream.title}</title>
 </svelte:head>
 
-<div
-  class="flex flex-col min-h-screen max-h-screen overflow-hidden sm:max-h-full"
->
+<div class="flex flex-col min-h-screen max-h-screen overflow-hidden">
   <div class="flex flex-grow overflow-hidden w-full">
     <div class="w-full sm:w-full md:w-4/6 lg:w-3/4 xl:w-3/4">
       <svelte:component
         this={YoutubeComponent}
         videoId={stream.id}
-        on:CurrentPlayTime={({ detail }) => (time = detail)}
-        on:PlayerStateChange={({ detail }) => (vodState = detail)}
-        bind:this={player}
+        on:CurrentPlayTime={({ detail }) => (streamTime = detail)}
+        on:PlayerStateChange={({ detail }) => (streamState = detail)}
+        bind:this={streamPlayer}
       />
-      <!-- <div>
-        <p>
-          Time: {Math.trunc(time / 60)} minutes and {Math.trunc(
-            ((time / 60) % 1) * 60
-          )}
-          seconds
-        </p>
-
-        <p>Or: {Math.floor(time)}</p>
-      </div> -->
     </div>
 
     <div
       class="flex flex-col overflow-hidden w-full sm:w-full md:w-2/6 lg:w-1/4 xl:w-1/4"
     >
       {#if songs.length > 0}
-        <div>
-          <svelte:component
-            this={SongComponent}
-            {time}
-            {songs}
-            {vodState}
-            {songVolume}
-          />
-        </div>
-        <div class="overflow-y-auto overflow-x-hidden">
-          {#each songs as song, i}
-            <svelte:component this={SongCardComponent} {song} {i} />
-          {/each}
-        </div>
+        <svelte:component
+          this={SongComponent}
+          {streamPlayer}
+          {streamTime}
+          {streamState}
+          {songs}
+          {songVolume}
+        />
       {:else}
         <p>No bubb4bot</p>
       {/if}

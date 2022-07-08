@@ -1,66 +1,66 @@
 <script lang="ts">
-  import { createEventDispatcher } from 'svelte';
+  // import { createEventDispatcher } from 'svelte';
   import { onMount } from 'svelte';
+  import { playSong } from '../utils/helperFunctions';
   import type { Song } from '../utils/types';
 
-  export let time: number;
-  export let songs: Song[];
-  export let vodState: number;
-  export let songVolume: number;
-
   let YoutubeComponent: any;
-
-  let player: any;
-  let playertime: number;
-  let currentSong: Song = songs[0];
+  let SongCardComponent: any;
 
   onMount(async () => {
-    const module = await import('./Youtube.svelte');
-    YoutubeComponent = module.default;
+    const youtubeModule = await import('./Youtube.svelte');
+    const songCardModule = await import('./SongCard.svelte');
+    YoutubeComponent = youtubeModule.default;
+    SongCardComponent = songCardModule.default;
   });
 
-  const getSong = () => {
-    if (time < songs[0].startTime) {
-      player.pause();
-      return;
-    }
+  export let streamPlayer: any;
+  export let streamTime: number;
+  export let streamState: number;
+  export let songs: Song[];
+  export let songVolume: number;
 
-    songs.map((song, i) => {
-      if (
-        currentSong !== song &&
-        Math.floor(time) >= Math.floor(song.startTime)
-      ) {
-        if (i === songs.length - 1) {
-          currentSong = song;
-          player.loadVideoById(currentSong.id, time - currentSong.startTime);
-          player.setVolume(songVolume);
-          return;
-        }
-
-        if (Math.floor(time) < Math.floor(songs[i + 1].startTime)) {
-          currentSong = song;
-          player.loadVideoById(currentSong.id, time - currentSong.startTime);
-          player.setVolume(songVolume);
-          return;
-        }
-      }
-    });
-
-    return;
-  };
+  let songPlayer: any;
+  let songTime: number;
+  let currentSong: Song = songs[0];
+  let showControls: boolean = false;
 
   const changeState = () => {
-    if (vodState === 2) player.pause();
-    if (vodState === 1) player.play();
+    if (streamState === 2 || streamState === 3) songPlayer.pause();
+    if (streamState === 1 && showControls) songPlayer.play();
   };
 
-  $: time && getSong();
-  $: vodState && changeState();
+  $: streamState && changeState();
+  $: streamTime &&
+    ({ currentSong, showControls } = playSong(
+      streamTime,
+      songPlayer,
+      songs,
+      currentSong,
+      songVolume
+    ));
+
+  const handleClick = (song: Song) => {
+    streamPlayer.setTime(song.startTime);
+    streamPlayer.play();
+    songPlayer.loadVideoById(song.id);
+    songPlayer.setVolume(songVolume);
+  };
 </script>
 
-<svelte:component
-  this={YoutubeComponent}
-  videoId={currentSong.id}
-  on:CurrentPlayTime={({ detail }) => (playertime = detail)}
-  bind:this={player}
-/>
+<div class={`${showControls ? 'visible' : 'invisible'}`}>
+  <svelte:component
+    this={YoutubeComponent}
+    videoId={currentSong.id}
+    on:CurrentPlayTime={({ detail }) => (songTime = detail)}
+    bind:this={songPlayer}
+  />
+</div>
+
+<div class="overflow-y-auto overflow-x-hidden">
+  {#each songs as song, i}
+    <button on:click={() => handleClick(song)}>
+      <svelte:component this={SongCardComponent} {song} {i} />
+    </button>
+  {/each}
+</div>

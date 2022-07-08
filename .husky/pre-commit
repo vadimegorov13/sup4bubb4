@@ -20,14 +20,7 @@ npm run check-types ||
 )
 
 # If everything passes... Now we can commit
-echo 'Passed style and type test. Trying to build now.'
-
-npm run build ||
-(
-    echo 'Build failed
-    View the errors above to see why.'
-    false;
-)
+echo 'Passed style and type test.'
 
 # If everything passes... Now we can commit
 echo '✅✅✅✅ Committing ✅✅✅✅'

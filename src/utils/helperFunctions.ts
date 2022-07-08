@@ -72,3 +72,47 @@ export const getSongsTiming = async (startTime: string, songs: Song[]) => {
 
   return timedSongs;
 };
+
+export const playSong = (
+  streamTime: number,
+  songPlayer: any,
+  songs: Song[],
+  currentSong: Song,
+  songVolume: number
+) => {
+  let showControls: boolean = false;
+  if (streamTime < songs[0].startTime) {
+    songPlayer.pause();
+    showControls = false;
+    return { currentSong, showControls };
+  }
+
+  songs.some((song, i) => {
+    if (
+      currentSong !== song &&
+      Math.floor(streamTime) >= Math.floor(song.startTime)
+    ) {
+      if (
+        Math.floor(streamTime) < Math.floor(songs[i + 1].startTime) ||
+        i === songs.length - 1
+      ) {
+        currentSong = song;
+        songPlayer.loadVideoById(
+          currentSong.id,
+          streamTime - currentSong.startTime
+        );
+        songPlayer.setVolume(songVolume);
+        return;
+      }
+    }
+  });
+
+  if (streamTime > currentSong.startTime + currentSong.duration) {
+    songPlayer.pause();
+    showControls = false;
+  } else {
+    showControls = true;
+  }
+
+  return { currentSong, showControls };
+};
