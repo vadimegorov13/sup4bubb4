@@ -33,6 +33,7 @@
     "@babel/plugin-transform-runtime": "^7.0.0",
     "@babel/preset-env": "^7.0.0",
     "@babel/runtime": "^7.0.0",
+    "@iconify/svelte": "^2.2.1",
     "@rollup/plugin-babel": "^5.0.0",
     "@rollup/plugin-commonjs": "^14.0.0",
     "@rollup/plugin-node-resolve": "^8.0.0",
@@ -48,6 +49,7 @@
     "cssnano": "^5.1.11",
     "dotenv": "^16.0.1",
     "firebase": "^9.8.3",
+    "husky": "^8.0.0",
     "iso8601-duration": "^2.1.1",
     "moment": "^2.29.3",
     "npm-run-all": "^4.1.5",
@@ -67,7 +69,6 @@
     "svelte-preprocess": "^4.10.7",
     "tailwindcss": "^3.1.2",
     "tslib": "^2.0.1",
-    "typescript": "^4.0.3",
-    "husky": "^8.0.0"
+    "typescript": "^4.0.3"
   }
 }
