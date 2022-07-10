@@ -6,6 +6,7 @@
   let StreamCard: any;
   let streams: Stream[] = [];
   let loading = true;
+
   $: isLoaded = streams && !loading;
 
   onMount(async () => {

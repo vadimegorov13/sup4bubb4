@@ -1,18 +1,7 @@
 <script lang="ts">
-  // import { createEventDispatcher } from 'svelte';
   import { onMount } from 'svelte';
   import { playSong } from '../utils/helperFunctions';
   import type { Song } from '../utils/types';
-
-  let YoutubeComponent: any;
-  let SongCardComponent: any;
-
-  onMount(async () => {
-    const youtubeModule = await import('./Youtube.svelte');
-    const songCardModule = await import('./SongCard.svelte');
-    YoutubeComponent = youtubeModule.default;
-    SongCardComponent = songCardModule.default;
-  });
 
   export let streamPlayer: any;
   export let streamTime: number;
@@ -23,12 +12,10 @@
   let songPlayer: any;
   let songTime: number;
   let currentSong: Song = songs[0];
-  let showControls: boolean = false;
+  let showControls: boolean = true;
 
-  const changeState = () => {
-    if (streamState === 2 || streamState === 3) songPlayer.pause();
-    if (streamState === 1 && showControls) songPlayer.play();
-  };
+  let YoutubeComponent: any;
+  let SongCardComponent: any;
 
   $: streamState && changeState();
   $: streamTime &&
@@ -40,24 +27,36 @@
       songVolume
     ));
 
+  const changeState = () => {
+    if (streamState === 2 || streamState === 3) songPlayer.pause();
+    if (streamState === 1 && showControls) songPlayer.play();
+  };
+
   const handleClick = (song: Song) => {
     streamPlayer.setTime(song.startTime);
     streamPlayer.play();
-    songPlayer.loadVideoById(song.id);
-    songPlayer.setVolume(songVolume);
   };
+
+  onMount(async () => {
+    const youtubeModule = await import('./Youtube.svelte');
+    const songCardModule = await import('./SongCard.svelte');
+    YoutubeComponent = youtubeModule.default;
+    SongCardComponent = songCardModule.default;
+  });
 </script>
 
-<div class={`${showControls ? 'visible' : 'invisible'}`}>
+<div>
   <svelte:component
     this={YoutubeComponent}
     videoId={currentSong.id}
+    controls={0}
+    volume={songVolume}
     on:CurrentPlayTime={({ detail }) => (songTime = detail)}
     bind:this={songPlayer}
   />
 </div>
 
-<div class="overflow-y-auto overflow-x-hidden">
+<div class="flex flex-col overflow-y-auto overflow-x-hidden">
   {#each songs as song, i}
     <button on:click={() => handleClick(song)}>
       <svelte:component this={SongCardComponent} {song} {i} />

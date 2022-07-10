@@ -3,30 +3,11 @@
   import { createEventDispatcher } from 'svelte';
 
   export let videoId;
+  export let controls;
+  export let volume;
+
   let player;
   let divId = 'player_' + videoId;
-
-  onMount(() => {
-    const tag = document.createElement('script');
-
-    tag.src = 'https://www.youtube.com/iframe_api';
-    const firstScriptTag = document.getElementsByTagName('script')[0];
-    firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
-
-    window.onYouTubeIframeAPIReady = () =>
-      window.dispatchEvent(new Event('iframeApiReady'));
-
-    window.addEventListener('iframeApiReady', function (e) {
-      player = new YT.Player(divId, {
-        videoId,
-        playerVars: { rel: 0 },
-        events: {
-          onReady: playerIsReady,
-          onStateChange: playerStateChange,
-        },
-      });
-    });
-  });
 
   export const play = () => {
     player.playVideo();
@@ -81,6 +62,29 @@
     }
     dispatch('PlayerStateChangeString', strReturn);
   };
+
+  onMount(() => {
+    const tag = document.createElement('script');
+
+    tag.src = 'https://www.youtube.com/iframe_api';
+    const firstScriptTag = document.getElementsByTagName('script')[0];
+    firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+    window.onYouTubeIframeAPIReady = () =>
+      window.dispatchEvent(new Event('iframeApiReady'));
+
+    window.addEventListener('iframeApiReady', function (e) {
+      player = new YT.Player(divId, {
+        videoId,
+        playerVars: { rel: 0, autoplay: 1, controls: controls },
+        events: {
+          onReady: playerIsReady,
+          onStateChange: playerStateChange,
+        },
+      });
+      setVolume(volume);
+    });
+  });
 </script>
 
 <div id={divId} class="h-full w-full" />

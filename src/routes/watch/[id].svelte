@@ -29,18 +29,9 @@
 </script>
 
 <script lang="ts">
+  import Icon from '@iconify/svelte';
   import { onMount } from 'svelte';
   import type { Song, Stream } from '../../utils/types';
-
-  let SongComponent: any;
-  let YoutubeComponent: any;
-
-  onMount(async () => {
-    const songModule = await import('../../components/Song.svelte');
-    const youtubeModule = await import('../../components/Youtube.svelte');
-    SongComponent = songModule.default;
-    YoutubeComponent = youtubeModule.default;
-  });
 
   export let stream: Stream;
   export let songs: Song[] = [];
@@ -49,28 +40,64 @@
   let streamTime: number;
   let streamState: number;
   let songVolume: number = 10;
+  let hideSongList = false;
+
+  let SongComponent: any;
+  let YoutubeComponent: any;
+
+  const handleClick = () => {
+    hideSongList = !hideSongList;
+  };
+
+  onMount(async () => {
+    const songModule = await import('../../components/Song.svelte');
+    const youtubeModule = await import('../../components/Youtube.svelte');
+    SongComponent = songModule.default;
+    YoutubeComponent = youtubeModule.default;
+  });
 </script>
 
 <svelte:head>
   <title>{stream.title}</title>
 </svelte:head>
 
-<div class="flex flex-col min-h-screen max-h-screen overflow-hidden">
+<div class="flex flex-col min-h-screen max-h-screen">
   <div class="flex flex-grow overflow-hidden w-full">
-    <div class="w-full sm:w-full md:w-4/6 lg:w-3/4 xl:w-3/4">
+    <div class="w-full relative">
       <svelte:component
         this={YoutubeComponent}
         videoId={stream.id}
+        controls={1}
+        volume={100}
         on:CurrentPlayTime={({ detail }) => (streamTime = detail)}
         on:PlayerStateChange={({ detail }) => (streamState = detail)}
         bind:this={streamPlayer}
       />
+      {#if hideSongList === true}
+        <div class="absolute right-0 top-2">
+          <button
+            class="bg-transparent p-4 rounded-full transform transition duration-500 hover:bg-zinc-500/[.70]"
+            on:click={handleClick}
+          >
+            <Icon icon="ooui:collapse" rotate="135" style="font-size: 16px;" />
+          </button>
+        </div>
+      {/if}
     </div>
 
-    <div
-      class="flex flex-col overflow-hidden w-full sm:w-full md:w-2/6 lg:w-1/4 xl:w-1/4"
-    >
+    <div class={`w-96 ${hideSongList ? 'hidden' : 'flex flex-col'}`}>
       {#if songs.length > 0}
+        <div class="relative border-b-2 border-ameprimary p-4">
+          <p class="text-lg text-center">Song Requests</p>
+          <div class="absolute left-2 top-2">
+            <button
+              class="bg-transparent p-4 rounded-full transform transition duration-500 hover:bg-zinc-700"
+              on:click={handleClick}
+            >
+              <Icon icon="ooui:collapse" rotate="45" style="font-size: 16px;" />
+            </button>
+          </div>
+        </div>
         <svelte:component
           this={SongComponent}
           {streamPlayer}
