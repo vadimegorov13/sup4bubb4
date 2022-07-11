@@ -40,7 +40,8 @@
   let streamTime: number;
   let streamState: number;
   let songVolume: number = 10;
-  let hideSongList = false;
+  let hideSongList: boolean = false;
+  let lastTimeUpdate: number;
 
   let SongComponent: any;
   let YoutubeComponent: any;
@@ -67,10 +68,9 @@
       <svelte:component
         this={YoutubeComponent}
         videoId={stream.id}
-        controls={1}
-        volume={100}
         on:CurrentPlayTime={({ detail }) => (streamTime = detail)}
         on:PlayerStateChange={({ detail }) => (streamState = detail)}
+        on:LastTimeUpdate={({ detail }) => (lastTimeUpdate = detail)}
         bind:this={streamPlayer}
       />
       {#if hideSongList === true}
@@ -105,6 +105,7 @@
           {streamState}
           {songs}
           {songVolume}
+          {lastTimeUpdate}
         />
       {:else}
         <p>No bubb4bot</p>

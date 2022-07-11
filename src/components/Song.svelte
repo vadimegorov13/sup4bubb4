@@ -8,6 +8,7 @@
   export let streamState: number;
   export let songs: Song[];
   export let songVolume: number;
+  export let lastTimeUpdate: number;
 
   let songPlayer: any;
   let songTime: number;
@@ -21,6 +22,7 @@
   $: streamTime &&
     ({ currentSong, showControls } = playSong(
       streamTime,
+      lastTimeUpdate,
       songPlayer,
       songs,
       currentSong,
@@ -28,8 +30,19 @@
     ));
 
   const changeState = () => {
-    if (streamState === 2 || streamState === 3) songPlayer.pause();
-    if (streamState === 1 && showControls) songPlayer.play();
+    if (streamState === 2 || streamState === 3) {
+      songPlayer.pause();
+      playSong(
+        streamTime,
+        lastTimeUpdate,
+        songPlayer,
+        songs,
+        currentSong,
+        songVolume
+      );
+    }
+    if ((streamState === 0 || streamState === 1) && showControls)
+      songPlayer.play();
   };
 
   const handleClick = (song: Song) => {
@@ -50,7 +63,7 @@
     this={YoutubeComponent}
     videoId={currentSong.id}
     controls={0}
-    volume={songVolume}
+    disablekb={1}
     on:CurrentPlayTime={({ detail }) => (songTime = detail)}
     bind:this={songPlayer}
   />

@@ -75,21 +75,24 @@ export const getSongsTiming = async (startTime: string, songs: Song[]) => {
 
 export const playSong = (
   streamTime: number,
+  lastTimeUpdate: number,
   songPlayer: any,
   songs: Song[],
   currentSong: Song,
   songVolume: number
 ) => {
   let showControls: boolean = false;
+
   if (streamTime < songs[0].startTime) {
     songPlayer.pause();
     showControls = false;
     return { currentSong, showControls };
   }
-
   songs.some((song, i) => {
     if (
-      currentSong !== song &&
+      (currentSong !== song ||
+        lastTimeUpdate > Math.floor(streamTime) + 1 ||
+        lastTimeUpdate < Math.floor(streamTime)) &&
       Math.floor(streamTime) >= Math.floor(song.startTime)
     ) {
       if (

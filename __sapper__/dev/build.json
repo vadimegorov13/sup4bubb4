@@ -2,7 +2,7 @@
   "bundler": "rollup",
   "shimport": "2.0.4",
   "assets": {
-    "main": "client.9782efe6.js"
+    "main": "client.807ac488.js"
   },
   "css": {
     "main": [
@@ -11,16 +11,16 @@
   },
   "dependencies": {
     "index.svelte": [
-      "index.a2f1214d.js",
+      "index.79c5c14c.js",
       "inject_styles.5607aec6.js"
     ],
     "about.svelte": [
-      "about.edef9ae8.js",
+      "about.7c0954aa.js",
       "inject_styles.5607aec6.js"
     ],
     "watch/[id].svelte": [
-      "_id_.88fb8673.js",
-      "helperFunctions.5bc46e19.js",
+      "_id_.13f94cd9.js",
+      "helperFunctions.f2eeb537.js",
       "inject_styles.5607aec6.js"
     ]
   }
