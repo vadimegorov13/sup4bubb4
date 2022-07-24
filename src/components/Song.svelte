@@ -62,14 +62,14 @@
   <svelte:component
     this={YoutubeComponent}
     videoId={currentSong.id}
-    controls={0}
+    controls={1}
     disablekb={1}
     on:CurrentPlayTime={({ detail }) => (songTime = detail)}
     bind:this={songPlayer}
   />
 </div>
 
-<div class="flex flex-col overflow-y-auto overflow-x-hidden">
+<div class="flex flex-col overflow-y-auto overflow-x-hidden scroll-hidden">
   {#each songs as song, i}
     <button on:click={() => handleClick(song)}>
       <svelte:component this={SongCardComponent} {song} {i} />

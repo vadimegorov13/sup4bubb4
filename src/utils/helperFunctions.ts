@@ -91,10 +91,13 @@ export const playSong = (
   songs.some((song, i) => {
     if (
       (currentSong !== song ||
-        lastTimeUpdate > Math.floor(streamTime) + 1 ||
+        lastTimeUpdate > Math.floor(streamTime) + 2 ||
         lastTimeUpdate < Math.floor(streamTime)) &&
       Math.floor(streamTime) >= Math.floor(song.startTime)
     ) {
+      // console.log(
+      //   `time: ${Math.floor(streamTime)}\n updated time: ${lastTimeUpdate}`
+      // );
       if (
         Math.floor(streamTime) < Math.floor(songs[i + 1].startTime) ||
         i === songs.length - 1

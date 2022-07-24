@@ -30,7 +30,7 @@
         videoId,
         playerVars: {
           rel: 0,
-          autoplay: 1,
+          autoplay: 0,
           controls: controls,
           disablekb: disablekb,
         },
@@ -120,10 +120,6 @@
       strReturn = '(video cued).';
     }
     dispatch('PlayerStateChangeString', strReturn);
-  };
-
-  const playerTimeChange = ({ data }) => {
-    dispatch('PlayerTimeChange', data);
   };
 </script>
 

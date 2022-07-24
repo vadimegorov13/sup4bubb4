@@ -85,7 +85,7 @@
       {/if}
     </div>
 
-    <div class={`w-96 ${hideSongList ? 'hidden' : 'flex flex-col'}`}>
+    <div class={`${hideSongList ? 'hidden' : 'flex flex-col'}`} id="test">
       {#if songs.length > 0}
         <div class="relative border-b-2 border-ameprimary p-4">
           <p class="text-lg text-center">Song Requests</p>
@@ -113,3 +113,9 @@
     </div>
   </div>
 </div>
+
+<style>
+  #test {
+    width: 32rem;
+  }
+</style>

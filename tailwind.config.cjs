@@ -9,6 +9,9 @@ module.exports = {
         ameprimary: '#F4D480',
         amesecondary: '#FDF0D4',
       },
+      width: {
+        128: '32rem',
+      },
     },
   },
   variants: {},
