@@ -81,44 +81,38 @@ export const playSong = (
   currentSong: Song,
   songVolume: number
 ) => {
-  let showControls: boolean = false;
-
   if (streamTime < songs[0].startTime) {
     songPlayer.pause();
-    showControls = false;
-    return { currentSong, showControls };
+    return currentSong;
   }
+
+  // Get a song depending on the stream time
   songs.some((song, i) => {
     if (
-      (currentSong !== song ||
-        lastTimeUpdate > Math.floor(streamTime) + 2 ||
-        lastTimeUpdate < Math.floor(streamTime)) &&
-      Math.floor(streamTime) >= Math.floor(song.startTime)
+      currentSong !== song &&
+      Math.floor(streamTime) >= Math.floor(song.startTime) &&
+      Math.floor(streamTime) < Math.floor(songs[i + 1].startTime)
     ) {
-      // console.log(
-      //   `time: ${Math.floor(streamTime)}\n updated time: ${lastTimeUpdate}`
-      // );
-      if (
-        Math.floor(streamTime) < Math.floor(songs[i + 1].startTime) ||
-        i === songs.length - 1
-      ) {
-        currentSong = song;
-        songPlayer.loadVideoById(
-          currentSong.id,
-          streamTime - currentSong.startTime
-        );
-        songPlayer.setVolume(songVolume);
-        return;
-      }
+      currentSong = song;
+      songPlayer.loadVideoById(
+        currentSong.id,
+        streamTime - currentSong.startTime
+      );
+      songPlayer.setVolume(songVolume);
+      return;
+    }
+
+    // change time of the song when time of the stream changes
+    if (
+      currentSong === song &&
+      (lastTimeUpdate > Math.floor(streamTime) + 1 ||
+        lastTimeUpdate < Math.floor(streamTime) - 1)
+    ) {
+      console.log(`Last Update: ${lastTimeUpdate}\nStream Time: ${streamTime}`);
+      songPlayer.setTime(lastTimeUpdate - currentSong.startTime);
+      return;
     }
   });
 
-  if (streamTime > currentSong.startTime + currentSong.duration) {
-    songPlayer.pause();
-    showControls = false;
-  } else {
-    showControls = true;
-  }
-
-  return { currentSong, showControls };
+  return currentSong;
 };

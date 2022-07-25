@@ -13,14 +13,15 @@
   let songPlayer: any;
   let songTime: number;
   let currentSong: Song = songs[0];
-  let showControls: boolean = true;
 
   let YoutubeComponent: any;
   let SongCardComponent: any;
 
+  // when state of the vod changes, change state of the song
   $: streamState && changeState();
+  // change curentSong depending depending on the time of the vod
   $: streamTime &&
-    ({ currentSong, showControls } = playSong(
+    (currentSong = playSong(
       streamTime,
       lastTimeUpdate,
       songPlayer,
@@ -29,6 +30,7 @@
       songVolume
     ));
 
+  // change state of the song
   const changeState = () => {
     if (streamState === 2 || streamState === 3) {
       songPlayer.pause();
@@ -41,10 +43,10 @@
         songVolume
       );
     }
-    if ((streamState === 0 || streamState === 1) && showControls)
-      songPlayer.play();
+    if (streamState === 0 || streamState === 1) songPlayer.play();
   };
 
+  // change time of the stream to play clicked song
   const handleClick = (song: Song) => {
     streamPlayer.setTime(song.startTime);
     streamPlayer.play();
@@ -58,6 +60,7 @@
   });
 </script>
 
+<!-- Youtube player -->
 <div>
   <svelte:component
     this={YoutubeComponent}
@@ -69,6 +72,7 @@
   />
 </div>
 
+<!-- List of songs -->
 <div class="flex flex-col overflow-y-auto overflow-x-hidden scroll-hidden">
   {#each songs as song, i}
     <button on:click={() => handleClick(song)}>
