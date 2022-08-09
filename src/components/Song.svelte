@@ -90,9 +90,7 @@
   />
 </div>
 
-<div
-  class="h-4/6 flex flex-col overflow-y-auto overflow-x-hidden scroll-hidden"
->
+<div class="h-4/6 flex flex-col">
   <div class="flex justify-center m-2 text-sm">
     Offset: <input
       type="number"
@@ -104,7 +102,7 @@
   </div>
 
   <!-- List of songs -->
-  <div class="flex flex-col overflow-y-auto overflow-x-hidden scroll-hidden">
+  <div class="flex flex-col overflow-y-scroll overflow-x-hidden no-scrollbar">
     {#each songs as song, i}
       <button on:click={() => handleClick(song)}>
         <svelte:component
@@ -118,3 +116,16 @@
     {/each}
   </div>
 </div>
+
+<style>
+  /* Hide scrollbar for Chrome, Safari and Opera */
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Hide scrollbar for IE, Edge and Firefox */
+  .no-scrollbar {
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
+  }
+</style>

@@ -82,6 +82,7 @@ const getAllStreams = async (req: Request, res: Response) => {
     const streams: Stream[] = [];
     await db
       .collection("streams")
+      .orderBy('publishedAt', 'desc')
       .get()
       .then((snapshot) => {
         snapshot.forEach((doc: any) => streams.push(doc.data()));
