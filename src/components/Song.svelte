@@ -58,9 +58,8 @@
   };
 
   const changeStreamState = () => {
-    if (streamState !== 0 && streamState !== 2) {
-      if (songState === 3) streamPlayer.pause();
-      else streamPlayer.play();
+    if (streamState !== 0 && streamState !== 2 && songState !== 3) {
+      streamPlayer.play();
     }
   };
 
