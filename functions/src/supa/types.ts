@@ -1,3 +1,5 @@
+import { Request as ExpressRequest } from "express";
+
 type User = {
   providerId: string;
   username: string;
@@ -28,7 +30,7 @@ type Stream = {
 };
 
 type Request = {
-  body: { apiKey: string };
+  headers: ExpressRequest["headers"]
   params: { streamId: string };
 };
 

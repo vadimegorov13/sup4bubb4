@@ -4,24 +4,23 @@ import { checkAdmin, saveCompleteList, updateStreamList } from "./supa/supaFunct
 import { Request, Song, Stream } from "./supa/types";
 
 const saveAllSupaStreams = async (req: Request, res: Response) => {
+  if (!req.headers.authorization || !req.headers.authorization.startsWith('Bearer ')) {
+    res.status(403).json({
+      status: "Unauthorized",
+      message: "Please provide an API Key",
+    });
+    return;
+  }
+
+  const apiKey = req.headers.authorization.split('Bearer ')[1];
+
   try {
-    const {
-      body: { apiKey },
-    } = req;
-
-    if (!apiKey) {
-      return res.status(400).json({
-        status: "Bad Request",
-        message: "Please provide an API Key",
-      });
-    }
-
     const admin = await checkAdmin(apiKey);
 
     if (!admin) {
-      return res.status(400).json({
-        status: "Bad Request",
-        message: "Who is you??",
+      return res.status(403).json({
+        status: "Unauthorized",
+        message: "Please provide an API Key",
       });
     }
 
@@ -32,29 +31,31 @@ const saveAllSupaStreams = async (req: Request, res: Response) => {
       data: streams,
     });
   } catch (error: any) {
-    return res.status(500).json(error.message);
+    return res.status(500).json({
+      status: "Internal Server Error",
+      message: error.message,
+    });
   }
 };
 
 const updateSupaStreams = async (req: Request, res: Response) => {
+  if (!req.headers.authorization || !req.headers.authorization.startsWith('Bearer ')) {
+    res.status(403).json({
+      status: "Unauthorized",
+      message: "Please provide an API Key",
+    });
+    return;
+  }
+
+  const apiKey = req.headers.authorization.split('Bearer ')[1];
+
   try {
-    const {
-      body: { apiKey },
-    } = req;
-
-    if (!apiKey) {
-      return res.status(400).json({
-        status: "Bad Request",
-        message: "Please provide an API Key",
-      });
-    }
-
     const admin = await checkAdmin(apiKey);
 
     if (!admin) {
-      return res.status(400).json({
-        status: "Bad Request",
-        message: "Who is you??",
+      return res.status(403).json({
+        status: "Unauthorized",
+        message: "Please provide an API Key",
       });
     }
 
@@ -73,7 +74,11 @@ const updateSupaStreams = async (req: Request, res: Response) => {
       data: streams,
     });
   } catch (error: any) {
-    return res.status(500).json(error.message);
+    return res.status(500).json({
+      status: "Internal Server Error",
+      message: error.message,
+    });
+
   }
 };
 
@@ -89,7 +94,10 @@ const getAllStreams = async (req: Request, res: Response) => {
       });
     return res.status(200).json(streams);
   } catch (error: any) {
-    return res.status(500).json(error.message);
+    return res.status(500).json({
+      status: "Internal Server Error",
+      message: error.message,
+    });;
   }
 };
 
@@ -109,7 +117,10 @@ const getStream = async (req: Request, res: Response) => {
 
     return res.status(200).json(stream);
   } catch (error: any) {
-    return res.status(500).json(error.message);
+    return res.status(500).json({
+      status: "Internal Server Error",
+      message: error.message,
+    });;
   }
 };
 
@@ -133,7 +144,10 @@ const getSongs = async (req: Request, res: Response) => {
 
     return res.status(200).json(songs);
   } catch (error: any) {
-    return res.status(500).json(error.message);
+    return res.status(500).json({
+      status: "Internal Server Error",
+      message: error.message,
+    });;
   }
 };
 
