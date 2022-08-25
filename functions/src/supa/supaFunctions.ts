@@ -49,7 +49,7 @@ const getStreamData = async (items: any, streams: Stream[]) => {
           (item.snippet.title.toLowerCase().includes("supa") ||
           item.snippet.title.toLowerCase().includes("bubb4bot") ||
           item.snippet.title.toLowerCase().includes("superchat") ||
-          item.snippet.title.toLowerCase().includes("YOI")) &&
+          item.snippet.title.toLowerCase().includes("yoi")) &&
           !item.snippet.title.toLowerCase().includes("SUPA BUNNY") &&
           item.status.uploadStatus !== "uploaded"
         ) {
