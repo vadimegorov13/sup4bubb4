@@ -27,7 +27,7 @@ type Stream = {
   publishedAt: string;
   duration: string;
   liveStreamingDetails: StreamDetails;
-  offset?: string;
+  offset?: number;
 };
 
 type Request = {

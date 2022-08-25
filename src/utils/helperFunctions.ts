@@ -48,7 +48,11 @@ export const getTime = (stream: Stream) => {
 };
 
 // TODO: add "offset" variable
-export const getSongsTiming = async (startTime: string, songs: Song[]) => {
+export const getSongsTiming = async (
+  startTime: string,
+  songs: Song[],
+  offset: number
+) => {
   const sortedSongs = songs.reverse();
   const timedSongs = sortedSongs.map((song, i) => {
     if (i === 0) {
@@ -56,7 +60,8 @@ export const getSongsTiming = async (startTime: string, songs: Song[]) => {
         ...song,
         startTime:
           (new Date(song.createdAt).getTime() - new Date(startTime).getTime()) /
-            1000 -
+            1000 +
+          offset -
           song.duration,
       };
     } else {
@@ -65,7 +70,8 @@ export const getSongsTiming = async (startTime: string, songs: Song[]) => {
         startTime:
           (new Date(sortedSongs[i - 1].createdAt).getTime() -
             new Date(startTime).getTime()) /
-          1000,
+            1000 +
+          offset,
       };
     }
   });

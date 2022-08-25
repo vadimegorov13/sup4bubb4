@@ -10,6 +10,7 @@ export type Stream = {
   publishedAt: string;
   duration: string;
   liveStreamingDetails: StreamDetails;
+  offset?: number;
 };
 
 type User = {

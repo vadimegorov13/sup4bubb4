@@ -4,14 +4,15 @@
   export async function load({ params, fetch }: any) {
     const id = params.id;
     const resStream = await fetch(`https://sup4bubb4.web.app/api/stream/${id}`);
-    const dataStream = await resStream.json();
+    const dataStream = (await resStream.json()) as Stream;
 
     const resSongs = await fetch(`https://sup4bubb4.web.app/api/songs/${id}`);
     const dataSongs = await resSongs.json();
 
     const timedSongs = await getSongsTiming(
       dataStream.liveStreamingDetails.actualStartTime,
-      dataSongs
+      dataSongs,
+      dataStream.offset ? dataStream.offset : 0
     );
 
     if (resStream.ok && resStream.ok) {
