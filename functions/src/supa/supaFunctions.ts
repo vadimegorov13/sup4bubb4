@@ -44,11 +44,12 @@ const getStreamData = async (items: any, streams: Stream[]) => {
     .then((list: any) => list.items)
     .then((items) => {
       items.forEach((item: any) => {
-        // Check if supa stream
+        // Check if supa or yoi stream
         if (
           (item.snippet.title.toLowerCase().includes("supa") ||
           item.snippet.title.toLowerCase().includes("bubb4bot") ||
-          item.snippet.title.toLowerCase().includes("superchat")) &&
+          item.snippet.title.toLowerCase().includes("superchat") ||
+          item.snippet.title.toLowerCase().includes("YOI")) &&
           !item.snippet.title.toLowerCase().includes("SUPA BUNNY") &&
           item.status.uploadStatus !== "uploaded"
         ) {
@@ -187,6 +188,8 @@ export const updateStreamList = async () => {
 };
 
 export const checkAdmin = async (apiKey: string) => {
+  if (!apiKey) return false
+
   const hashedAPIKey = createHash("md5").update(apiKey).digest("hex");
   const adminKey: string | "" = await db
     .collection("apiKey")
@@ -198,9 +201,7 @@ export const checkAdmin = async (apiKey: string) => {
       return "";
     });
 
-  if (hashedAPIKey === adminKey) {
-    return true;
-  }
-
+  if (hashedAPIKey === adminKey) return true;
+  
   return false;
 };
