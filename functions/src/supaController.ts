@@ -1,15 +1,14 @@
 import { Response } from "express";
 import { db } from "./config/firebase";
-import { checkAdmin, saveCompleteList, updateStreamList } from "./supa/supaFunctions";
+import { checkAdmin, saveCompleteList, setOffset, updateStreamList } from "./supa/supaFunctions";
 import { Request, Song, Stream } from "./supa/types";
 
-const saveAllSupaStreams = async (req: Request, res: Response) => {
+const authorize = async (req: Request, res: Response) => {
   if (!req.headers.authorization || !req.headers.authorization.startsWith('Bearer ')) {
-    res.status(403).json({
+    return res.status(403).json({
       status: "Unauthorized",
       message: "Please provide an API Key",
     });
-    return;
   }
 
   const apiKey = req.headers.authorization.split('Bearer ')[1];
@@ -24,6 +23,19 @@ const saveAllSupaStreams = async (req: Request, res: Response) => {
       });
     }
 
+    return;
+  } catch(error: any) {
+    return res.status(500).json({
+      status: "Internal Server Error",
+      message: error.message,
+    });
+  }
+}
+
+export const saveAllSupaStreams = async (req: Request, res: Response) => {
+  await authorize(req, res);
+
+  try {
     const streams: Stream[] = await saveCompleteList();
     return res.status(200).json({
       status: "Success",
@@ -38,27 +50,10 @@ const saveAllSupaStreams = async (req: Request, res: Response) => {
   }
 };
 
-const updateSupaStreams = async (req: Request, res: Response) => {
-  if (!req.headers.authorization || !req.headers.authorization.startsWith('Bearer ')) {
-    res.status(403).json({
-      status: "Unauthorized",
-      message: "Please provide an API Key",
-    });
-    return;
-  }
-
-  const apiKey = req.headers.authorization.split('Bearer ')[1];
+export const updateSupaStreams = async (req: Request, res: Response) => {
+  await authorize(req, res);
 
   try {
-    const admin = await checkAdmin(apiKey);
-
-    if (!admin) {
-      return res.status(403).json({
-        status: "Unauthorized",
-        message: "Please provide an API Key",
-      });
-    }
-
     const streams: Stream[] = await updateStreamList();
 
     if (streams.length === 0){
@@ -78,11 +73,38 @@ const updateSupaStreams = async (req: Request, res: Response) => {
       status: "Internal Server Error",
       message: error.message,
     });
-
   }
 };
 
-const getAllStreams = async (req: Request, res: Response) => {
+export const offset = async (req: Request, res: Response) => {
+  await authorize(req, res);
+
+  try {
+    const {
+      params: { streamId },
+      body: { offset },
+    } = req;
+
+    if (await setOffset(streamId, offset)){
+      return res.status(200).json({
+        status: "Success",
+        message: `${offset}s offset for ${streamId} has been set`,
+      });
+    }
+
+    return res.status(400).json({
+      status: "Bad Request",
+      message: "Stream doesn't exist"
+    });
+  } catch (error: any) {
+    return res.status(500).json({
+      status: "Internal Server Error",
+      message: error.message,
+    });
+  }
+};
+
+export const getAllStreams = async (req: Request, res: Response) => {
   try {
     const streams: Stream[] = [];
     await db
@@ -97,11 +119,11 @@ const getAllStreams = async (req: Request, res: Response) => {
     return res.status(500).json({
       status: "Internal Server Error",
       message: error.message,
-    });;
+    });
   }
 };
 
-const getStream = async (req: Request, res: Response) => {
+export const getStream = async (req: Request, res: Response) => {
   const {
     params: { streamId },
   } = req;
@@ -120,11 +142,11 @@ const getStream = async (req: Request, res: Response) => {
     return res.status(500).json({
       status: "Internal Server Error",
       message: error.message,
-    });;
+    });
   }
 };
 
-const getSongs = async (req: Request, res: Response) => {
+export const getSongs = async (req: Request, res: Response) => {
   const {
     params: { streamId },
   } = req;
@@ -147,8 +169,7 @@ const getSongs = async (req: Request, res: Response) => {
     return res.status(500).json({
       status: "Internal Server Error",
       message: error.message,
-    });;
+    });
   }
 };
 
-export { saveAllSupaStreams, updateSupaStreams, getAllStreams, getStream, getSongs };

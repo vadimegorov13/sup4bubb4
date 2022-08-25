@@ -7,6 +7,7 @@ import {
   getStream,
   saveAllSupaStreams,
   updateSupaStreams,
+  offset
 } from "./supaController";
 
 const app = express();
@@ -17,6 +18,7 @@ app.get("/test", (req, res) => {
 app.get("/api/streams", getAllStreams);
 app.post("/api/saveallsupas", saveAllSupaStreams);
 app.post("/api/updatesupas", updateSupaStreams);
+app.post("/api/offset/:streamId", offset);
 app.get("/api/stream/:streamId", getStream);
 app.get("/api/songs/:streamId", getSongs);
 

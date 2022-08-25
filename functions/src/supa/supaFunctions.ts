@@ -187,6 +187,25 @@ export const updateStreamList = async () => {
   return streams;
 };
 
+export const setOffset = async (streamId: string, offset: number) => {
+    console.log(`setting ${offset}s offset for ${streamId}`)
+    return await db
+      .collection("streams")
+      .doc(streamId)
+      .get().then(async (doc) => {
+        const data = doc.data() as Stream;
+        if (data) {
+          await db
+            .collection("streams")
+            .doc(streamId)
+            .set({...data, offset})
+          return true
+        }
+        return false
+      })
+  
+};
+
 export const checkAdmin = async (apiKey: string) => {
   if (!apiKey) return false
 

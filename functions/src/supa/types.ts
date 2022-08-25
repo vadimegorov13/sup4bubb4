@@ -27,10 +27,12 @@ type Stream = {
   publishedAt: string;
   duration: string;
   liveStreamingDetails: StreamDetails;
+  offset?: string;
 };
 
 type Request = {
-  headers: ExpressRequest["headers"]
+  body: { offset: number };
+  headers: ExpressRequest["headers"];
   params: { streamId: string };
 };
 
