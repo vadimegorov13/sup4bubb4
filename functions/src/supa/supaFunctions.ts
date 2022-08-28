@@ -1,13 +1,14 @@
 // import fetch from "node-fetch";
-import { createHash } from "crypto";
-import * as rp from "request-promise";
-import { db } from "../config/firebase";
-import { API_KEY, playlistAPI, SE_API, VIDEOS_API } from "./api_urls";
-import { Song, Stream } from "./types";
+import { createHash } from 'crypto';
+import * as rp from 'request-promise';
+import { db } from '../config/firebase';
+import { API_KEY, playlistAPI, SE_API, VIDEOS_API } from './api_urls';
+import { getSongsTiming } from './helperFunctions';
+import { Song, Stream } from './types';
 
 // Get uploads playlist
 const getPlaylist = async (
-  nextPageToken: string = "",
+  nextPageToken: string = '',
   streams: Stream[] = [],
   maxResult: number = 50,
   runOnce: boolean = false
@@ -25,7 +26,7 @@ const getPlaylist = async (
       return await getPlaylist(list.nextPageToken, streams, maxResult);
     })
     .catch((err) => {
-      console.log("Failed to fetch playlist\nError:", err);
+      console.log('Failed to fetch playlist\nError:', err);
       return streams;
     });
 
@@ -46,12 +47,12 @@ const getStreamData = async (items: any, streams: Stream[]) => {
       items.forEach((item: any) => {
         // Check if supa or yoi stream
         if (
-          (item.snippet.title.toLowerCase().includes("supa") ||
-          item.snippet.title.toLowerCase().includes("bubb4bot") ||
-          item.snippet.title.toLowerCase().includes("superchat") ||
-          item.snippet.title.toLowerCase().includes("yoi")) &&
-          !item.snippet.title.toLowerCase().includes("SUPA BUNNY") &&
-          item.status.uploadStatus !== "uploaded"
+          (item.snippet.title.toLowerCase().includes('supa') ||
+            item.snippet.title.toLowerCase().includes('bubb4bot') ||
+            item.snippet.title.toLowerCase().includes('superchat') ||
+            item.snippet.title.toLowerCase().includes('yoi')) &&
+          !item.snippet.title.toLowerCase().includes('SUPA BUNNY') &&
+          item.status.uploadStatus !== 'uploaded'
         ) {
           // Add to the list
           streams.push({
@@ -67,7 +68,7 @@ const getStreamData = async (items: any, streams: Stream[]) => {
       return streams;
     })
     .catch((err) => {
-      console.log("Failed to fetch video data\nError:", err);
+      console.log('Failed to fetch video data\nError:', err);
       return streams;
     });
 
@@ -104,7 +105,7 @@ const getHistory = async (
       return await getHistory(limit, offset + limit, songs);
     })
     .catch((err) => {
-      console.log("Failed to fetch history\nError:", err);
+      console.log('Failed to fetch history\nError:', err);
       return songs;
     });
 
@@ -112,32 +113,38 @@ const getHistory = async (
 };
 
 const saveStream = async (stream: Stream, songs: Song[]) => {
-  const startTime = stream.liveStreamingDetails.actualStartTime.slice(0, 10);
-  const endTime = stream.liveStreamingDetails.actualEndTime.slice(0, 10) || "";
-  const playlist: Song[] = [];
+  const startDate = stream.liveStreamingDetails.actualStartTime.slice(0, 10);
+  const endDate = stream.liveStreamingDetails.actualEndTime.slice(0, 10) || '';
 
-  songs.forEach((song) => {
+  console.log('filtering songs');
+  const playlist: Song[] = songs.filter((song) => {
     const createdAt = song.createdAt.slice(0, 10);
-    if (createdAt === startTime || createdAt === endTime) {
-      playlist.push(song)
+    if (createdAt === startDate || createdAt === endDate) {
+      return true;
     }
+    return false;
   });
 
-  if (playlist.length !== 0){
-    console.log(`saving stream ${stream.title}`)
+  if (playlist.length !== 0) {
+    console.log('setting timing');
+    const timedPlaylist = (await getSongsTiming(
+      stream.liveStreamingDetails.actualStartTime,
+      playlist
+    )) as Song[];
+
+    console.log(`saving stream ${stream.title}`);
     await db
-      .collection("streams")
+      .collection('streams')
       .doc(stream.id)
       .set(stream)
       .then(async () => {
-        console.log("saving songs")
+        console.log('saving songs');
         await db
-          .collection("songs")
+          .collection('songs')
           .doc(stream.id)
-          .set({ playlist: playlist })
+          .set({ playlist: timedPlaylist });
       });
   }
-  
 };
 
 // Combine songs with appropriate stream
@@ -146,7 +153,7 @@ export const saveCompleteList = async () => {
   const streams: Stream[] = await getPlaylist();
 
   // Iterate throught every stream and assign songs to it
-  console.log("Iterating streams")
+  console.log('Iterating streams');
   streams.forEach(async (stream) => {
     saveStream(stream, songs);
   });
@@ -156,18 +163,16 @@ export const saveCompleteList = async () => {
 
 // Combine songs with appropriate stream
 export const updateStreamList = async () => {
-  const streams: Stream[] = await getPlaylist("", [], 5, true);
+  const streams: Stream[] = await getPlaylist('', [], 5, true);
 
-  if (streams.length === 0) {
-    return [];
-  }
+  if (!streams.length) return [];
 
   const songs: Song[] = await getHistory(100, 0, [], true);
 
   // Iterate throught every stream and assign songs to it
   streams.forEach(async (stream) => {
     const exit = await db
-      .collection("streams")
+      .collection('streams')
       .doc(stream.id)
       .get()
       .then((res) => {
@@ -177,9 +182,7 @@ export const updateStreamList = async () => {
         return false;
       });
 
-    if (exit) {
-      return;
-    }
+    if (exit) return;
 
     saveStream(stream, songs);
   });
@@ -188,39 +191,39 @@ export const updateStreamList = async () => {
 };
 
 export const setOffset = async (streamId: string, offset: number) => {
-    console.log(`setting ${offset}s offset for ${streamId}`)
-    return await db
-      .collection("streams")
-      .doc(streamId)
-      .get().then(async (doc) => {
-        const data = doc.data() as Stream;
-        if (data) {
-          await db
-            .collection("streams")
-            .doc(streamId)
-            .set({...data, offset})
-          return true
-        }
-        return false
-      })
-  
+  console.log(`setting ${offset}s offset for ${streamId}`);
+  return await db
+    .collection('streams')
+    .doc(streamId)
+    .get()
+    .then(async (doc) => {
+      const data = doc.data() as Stream;
+      if (data) {
+        await db
+          .collection('streams')
+          .doc(streamId)
+          .set({ ...data, offset });
+        return true;
+      }
+      return false;
+    });
 };
 
 export const checkAdmin = async (apiKey: string) => {
-  if (!apiKey) return false
+  if (!apiKey) return false;
 
-  const hashedAPIKey = createHash("md5").update(apiKey).digest("hex");
-  const adminKey: string | "" = await db
-    .collection("apiKey")
-    .doc("admin")
+  const hashedAPIKey = createHash('md5').update(apiKey).digest('hex');
+  const adminKey: string | '' = await db
+    .collection('apiKey')
+    .doc('admin')
     .get()
     .then((doc) => {
       const data = doc.data();
       if (data) return data.hashedAPIKey as string;
-      return "";
+      return '';
     });
 
   if (hashedAPIKey === adminKey) return true;
-  
+
   return false;
 };

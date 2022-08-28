@@ -1,4 +1,4 @@
-import { Request as ExpressRequest } from "express";
+import { Request as ExpressRequest } from 'express';
 
 type User = {
   providerId: string;
@@ -13,6 +13,7 @@ type Song = {
   channel: string;
   createdAt: string;
   user: User;
+  startTime?: number;
 };
 
 type StreamDetails = {
@@ -32,7 +33,7 @@ type Stream = {
 
 type Request = {
   body: { offset: number };
-  headers: ExpressRequest["headers"];
+  headers: ExpressRequest['headers'];
   params: { streamId: string };
 };
 

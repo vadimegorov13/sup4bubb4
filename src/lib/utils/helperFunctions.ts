@@ -47,14 +47,12 @@ export const getTime = (stream: Stream) => {
   return { date, durationStr, durationNum };
 };
 
-// TODO: add "offset" variable
 export const getSongsTiming = async (
   startTime: string,
   songs: Song[],
   offset: number
 ) => {
-  const sortedSongs = songs.reverse();
-  const timedSongs = sortedSongs.map((song, i) => {
+  const timedSongs = songs.map((song, i) => {
     if (i === 0) {
       return {
         ...song,
@@ -68,7 +66,7 @@ export const getSongsTiming = async (
       return {
         ...song,
         startTime:
-          (new Date(sortedSongs[i - 1].createdAt).getTime() -
+          (new Date(songs[i - 1].createdAt).getTime() -
             new Date(startTime).getTime()) /
             1000 +
           offset,
@@ -89,7 +87,7 @@ export const playSong = (
   songVolume: number,
   offset: number
 ) => {
-  if (streamTime < songs[0].startTime! + offset) {
+  if (streamTime < songs[0].startTime + offset) {
     songPlayer.pause();
     return currentSong;
   }
@@ -98,13 +96,14 @@ export const playSong = (
   songs.some((song, i) => {
     if (
       currentSong !== song &&
-      Math.floor(streamTime) >= Math.floor(song.startTime! + offset) &&
-      Math.floor(streamTime) < Math.floor(songs[i + 1].startTime! + offset)
+      Math.floor(streamTime) >= Math.floor(song.startTime + offset) &&
+      Math.floor(streamTime) < Math.floor(songs[i + 1].startTime + offset)
     ) {
+      console.log(streamTime - currentSong.startTime + offset);
       currentSong = song;
       songPlayer.loadVideoById(
         currentSong.id,
-        streamTime - currentSong.startTime! + offset
+        streamTime - currentSong.startTime + offset
       );
       songPlayer.setVolume(songVolume);
       return;
@@ -117,7 +116,7 @@ export const playSong = (
         lastTimeUpdate < Math.floor(streamTime) - 1)
     ) {
       // console.log(`Last Update: ${lastTimeUpdate}\nStream Time: ${streamTime}`);
-      songPlayer.setTime(lastTimeUpdate - currentSong.startTime! + offset);
+      songPlayer.setTime(lastTimeUpdate - currentSong.startTime + offset);
       return;
     }
   });
