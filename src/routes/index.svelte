@@ -1,36 +1,17 @@
-<script context="module" lang="ts">
-  export async function load({ fetch }: any) {
-    const resStreams = await fetch(`https://sup4bubb4.web.app/api/streams`);
-    const dataStreams = await resStreams.json();
-
-    if (resStreams.ok) {
-      return { props: { streams: dataStreams } };
-    } else {
-      return {
-        status: resStreams.status,
-        error: new Error('could not fetch streams'),
-      };
-    }
-  }
-</script>
-
 <script lang="ts">
+  import Footer from '$lib/components/Footer.svelte';
+  import Loading from '$lib/components/Loading.svelte';
+  import Nav from '$lib/components/Nav.svelte';
+  import StreamCard from '$lib/components/StreamCard.svelte';
+  import type { Stream } from '$lib/types';
   import { onMount } from 'svelte';
-  import Footer from '../components/Footer.svelte';
-  import Nav from '../components/Nav.svelte';
-  import Loading from '../components/Loading.svelte';
-  import type { Stream } from '../utils/types';
 
   export let streams: Stream[];
-  let StreamCard: any;
   let loading = true;
 
   $: isLoaded = streams && !loading;
 
   onMount(async () => {
-    const module = await import('../components/StreamCard.svelte');
-    StreamCard = module.default;
-
     loading = false;
   });
 </script>
@@ -54,7 +35,7 @@
         class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5"
       >
         {#each streams as stream}
-          <svelte:component this={StreamCard} {stream} />
+          <StreamCard {stream} />
         {/each}
       </div>
 

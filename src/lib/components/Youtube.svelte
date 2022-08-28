@@ -1,8 +1,6 @@
 <script>
   // @ts-nocheck
-
-  import { onMount } from 'svelte';
-  import { createEventDispatcher } from 'svelte';
+  import { createEventDispatcher, onMount } from 'svelte';
 
   export let videoId;
   export let controls = 1;

@@ -1,7 +1,7 @@
 <script lang="ts">
-  import type { Song } from '../utils/types';
+  import type { Song } from '$lib/types';
+  import { convertHMS } from '$lib/utils/helperFunctions';
   import { fade } from 'svelte/transition';
-  import { convertHMS } from '../utils/helperFunctions';
 
   export let song: Song;
   export let currentSong: Song;

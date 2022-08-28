@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import moment from 'moment';
+import type { Song, Stream } from '$lib/types';
 import { parse } from 'iso8601-duration';
-import type { Song, Stream } from './types';
+import moment from 'moment';
 
 const parseDuration = (duration: string) => {
   const parsedDuration = parse(duration);

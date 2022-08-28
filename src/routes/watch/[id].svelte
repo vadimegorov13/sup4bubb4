@@ -1,35 +1,7 @@
-<script context="module" lang="ts">
-  import { getSongsTiming } from '../../utils/helperFunctions';
-
-  export async function load({ params, fetch }: any) {
-    const id = params.id;
-    const resStream = await fetch(`https://sup4bubb4.web.app/api/stream/${id}`);
-    const dataStream = (await resStream.json()) as Stream;
-
-    const resSongs = await fetch(`https://sup4bubb4.web.app/api/songs/${id}`);
-    const dataSongs = await resSongs.json();
-
-    const timedSongs = await getSongsTiming(
-      dataStream.liveStreamingDetails.actualStartTime,
-      dataSongs,
-      dataStream.offset ? dataStream.offset : 0
-    );
-
-    if (resStream.ok && resStream.ok) {
-      return { props: { stream: dataStream, songs: timedSongs } };
-    } else {
-      return {
-        status: resStream.status,
-        error: new Error('could not fetch stream/songs'),
-      };
-    }
-  }
-</script>
-
 <script lang="ts">
+  import type { Song, Stream } from '$lib/types';
   import Icon from '@iconify/svelte';
   import { onMount } from 'svelte';
-  import type { Song, Stream } from '../../utils/types';
 
   export let stream: Stream;
   export let songs: Song[] = [];
@@ -49,12 +21,14 @@
   };
 
   onMount(async () => {
-    const songModule = await import('../../components/Song.svelte');
-    const youtubeModule = await import('../../components/Youtube.svelte');
+    const songModule = await import('$lib/components/Sidebar.svelte');
+    const youtubeModule = await import('$lib/components/Youtube.svelte');
     SongComponent = songModule.default;
     YoutubeComponent = youtubeModule.default;
 
     streamPlayer.setVolume(100);
+
+    console.log(stream);
   });
 </script>
 

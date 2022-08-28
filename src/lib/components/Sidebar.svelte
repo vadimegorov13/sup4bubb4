@@ -1,14 +1,14 @@
 <script lang="ts">
+  import type { Song } from '$lib/types';
+  import { playSong } from '$lib/utils/helperFunctions';
   import { onMount } from 'svelte';
-  import { playSong } from '../utils/helperFunctions';
-  import type { Song } from '../utils/types';
 
   let YoutubeComponent: any;
   let SongCardComponent: any;
 
   onMount(async () => {
-    const youtubeModule = await import('./Youtube.svelte');
-    const songCardModule = await import('./SongCard.svelte');
+    const youtubeModule = await import('$lib/components/Youtube.svelte');
+    const songCardModule = await import('$lib/components/SongCard.svelte');
     YoutubeComponent = youtubeModule.default;
     SongCardComponent = songCardModule.default;
   });
