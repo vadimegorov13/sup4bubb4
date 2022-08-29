@@ -25,10 +25,6 @@
     const youtubeModule = await import('$lib/components/Youtube.svelte');
     SongComponent = songModule.default;
     YoutubeComponent = youtubeModule.default;
-
-    streamPlayer.setVolume(100);
-
-    console.log(stream);
   });
 </script>
 

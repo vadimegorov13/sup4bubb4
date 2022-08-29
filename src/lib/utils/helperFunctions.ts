@@ -47,41 +47,12 @@ export const getTime = (stream: Stream) => {
   return { date, durationStr, durationNum };
 };
 
-export const getSongsTiming = async (
-  startTime: string,
-  songs: Song[],
-  offset: number
-) => {
-  const timedSongs = songs.map((song, i) => {
-    if (i === 0) {
-      return {
-        ...song,
-        startTime:
-          (new Date(song.createdAt).getTime() - new Date(startTime).getTime()) /
-            1000 +
-          offset -
-          song.duration,
-      };
-    } else {
-      return {
-        ...song,
-        startTime:
-          (new Date(songs[i - 1].createdAt).getTime() -
-            new Date(startTime).getTime()) /
-            1000 +
-          offset,
-      };
-    }
-  });
-
-  return timedSongs;
-};
-
 export const playSong = (
   streamTime: number,
   lastTimeUpdate: number,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   songPlayer: any,
+  songState: number,
   songs: Song[],
   currentSong: Song,
   songVolume: number,
@@ -92,6 +63,13 @@ export const playSong = (
     return currentSong;
   }
 
+  console.log('streamTime:', Math.floor(streamTime));
+  console.log('startTime:', Math.floor(songs[0].startTime + offset));
+  if (Math.floor(streamTime) === Math.floor(songs[0].startTime + offset) + 1) {
+    songPlayer.play();
+    return songs[0];
+  }
+
   // Get a song depending on the stream time
   songs.some((song, i) => {
     if (
@@ -99,11 +77,16 @@ export const playSong = (
       Math.floor(streamTime) >= Math.floor(song.startTime + offset) &&
       Math.floor(streamTime) < Math.floor(songs[i + 1].startTime + offset)
     ) {
-      console.log(streamTime - currentSong.startTime + offset);
       currentSong = song;
+
+      // console.log('streamTime:', streamTime);
+      // console.log('startTime:', currentSong.startTime);
+      // console.log('offset:', offset);
+      // console.log('Start time:', streamTime - (currentSong.startTime + offset));
+
       songPlayer.loadVideoById(
         currentSong.id,
-        streamTime - currentSong.startTime + offset
+        streamTime - (currentSong.startTime + offset)
       );
       songPlayer.setVolume(songVolume);
       return;
@@ -115,8 +98,11 @@ export const playSong = (
       (lastTimeUpdate > Math.floor(streamTime) + 1 ||
         lastTimeUpdate < Math.floor(streamTime) - 1)
     ) {
-      // console.log(`Last Update: ${lastTimeUpdate}\nStream Time: ${streamTime}`);
-      songPlayer.setTime(lastTimeUpdate - currentSong.startTime + offset);
+      songPlayer.setTime(
+        Math.abs(Math.round(lastTimeUpdate - (currentSong.startTime + offset)))
+      );
+      songPlayer.play();
+
       return;
     }
   });

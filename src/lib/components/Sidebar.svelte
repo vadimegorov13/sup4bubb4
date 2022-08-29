@@ -34,6 +34,7 @@
       streamTime,
       lastTimeUpdate,
       songPlayer,
+      songState,
       songs,
       currentSong,
       songVolume,
@@ -48,6 +49,7 @@
         streamTime,
         lastTimeUpdate,
         songPlayer,
+        songState,
         songs,
         currentSong,
         songVolume,
@@ -65,13 +67,11 @@
 
   // change time of the stream to play clicked song
   const handleClick = (song: Song) => {
-    if (song.startTime) {
-      streamPlayer.setTime(song.startTime + offset);
-      if (song.startTime + offset < streamPlayer.getDuration()) {
-        streamPlayer.play();
-      } else {
-        songPlayer.loadVideoById(song.id);
-      }
+    streamPlayer.setTime(song.startTime + offset);
+    if (song.startTime + offset < streamPlayer.getDuration()) {
+      streamPlayer.play();
+    } else {
+      songPlayer.loadVideoById(song.id);
     }
   };
 </script>

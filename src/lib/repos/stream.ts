@@ -1,5 +1,4 @@
 import type { Song, Stream } from '$lib/types';
-import { getSongsTiming } from '$lib/utils/helperFunctions';
 
 export class StreamRepo {
   getAll = async (): Promise<Stream[]> => {
@@ -18,18 +17,6 @@ export class StreamRepo {
     const songsRes = await fetch(`https://sup4bubb4.web.app/api/songs/${id}`);
     const songs = (await songsRes.json()) as Song[];
 
-    // if (stream.offset) {
-    //   songs = songs.map((song) => {
-    //     return { ...song, startTime: song.startTime + stream.offset! };
-    //   });
-    // }
-
-    // const timedSongs = (await getSongsTiming(
-    //   stream.liveStreamingDetails.actualStartTime,
-    //   songs,
-    //   stream.offset ? stream.offset : 0
-    // )) as Song[];
-
-    return { stream, songs: songs } ?? {};
+    return { stream, songs } ?? {};
   };
 }
