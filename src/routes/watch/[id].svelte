@@ -9,7 +9,6 @@
   let streamPlayer: any;
   let streamTime: number;
   let streamState: number;
-  let songVolume: number = 10;
   let hideSongList: boolean = false;
   let lastTimeUpdate: number;
 
@@ -84,7 +83,6 @@
         {streamTime}
         {streamState}
         {songs}
-        {songVolume}
         {lastTimeUpdate}
       />
     {:else}

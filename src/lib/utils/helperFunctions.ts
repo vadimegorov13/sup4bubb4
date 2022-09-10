@@ -50,45 +50,54 @@ export const getTime = (stream: Stream) => {
 export const playSong = (
   streamTime: number,
   lastTimeUpdate: number,
+  offset: number,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   songPlayer: any,
-  songState: number,
   songs: Song[],
-  currentSong: Song,
-  songVolume: number,
-  offset: number
+  currentSong: Song
 ) => {
+  // Pause player if vod didn't reach the start of song queue
   if (streamTime < songs[0].startTime + offset) {
     songPlayer.pause();
     return currentSong;
   }
 
-  console.log('streamTime:', Math.floor(streamTime));
-  console.log('startTime:', Math.floor(songs[0].startTime + offset));
+  // Start from the first song
   if (Math.floor(streamTime) === Math.floor(songs[0].startTime + offset) + 1) {
     songPlayer.play();
     return songs[0];
   }
 
-  // Get a song depending on the stream time
+  // Play last song in the queue
+  if (
+    currentSong !== songs[songs.length - 1] &&
+    streamTime >= songs[songs.length - 1].startTime + offset
+  ) {
+    currentSong = songs[songs.length - 1];
+
+    songPlayer.loadVideoById(
+      currentSong.id,
+      streamTime - (currentSong.startTime + offset)
+    );
+    songPlayer.setVolume(10);
+    return currentSong;
+  }
+
+  // Get a song depending on the streamTime
   songs.some((song, i) => {
+    // play song
     if (
       currentSong !== song &&
-      Math.floor(streamTime) >= Math.floor(song.startTime + offset) &&
-      Math.floor(streamTime) < Math.floor(songs[i + 1].startTime + offset)
+      streamTime >= song.startTime + offset &&
+      streamTime < songs[i + 1].startTime + offset
     ) {
       currentSong = song;
-
-      // console.log('streamTime:', streamTime);
-      // console.log('startTime:', currentSong.startTime);
-      // console.log('offset:', offset);
-      // console.log('Start time:', streamTime - (currentSong.startTime + offset));
 
       songPlayer.loadVideoById(
         currentSong.id,
         streamTime - (currentSong.startTime + offset)
       );
-      songPlayer.setVolume(songVolume);
+      songPlayer.setVolume(10);
       return;
     }
 

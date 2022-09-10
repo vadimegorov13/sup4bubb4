@@ -17,7 +17,6 @@
   export let streamTime: number;
   export let streamState: number;
   export let songs: Song[];
-  export let songVolume: number;
   export let lastTimeUpdate: number;
 
   let songPlayer: any;
@@ -33,12 +32,10 @@
     (currentSong = playSong(
       streamTime,
       lastTimeUpdate,
+      offset,
       songPlayer,
-      songState,
       songs,
-      currentSong,
-      songVolume,
-      offset
+      currentSong
     ));
 
   // change state of the song
@@ -48,12 +45,10 @@
       playSong(
         streamTime,
         lastTimeUpdate,
+        offset,
         songPlayer,
-        songState,
         songs,
-        currentSong,
-        songVolume,
-        offset
+        currentSong
       );
     }
     if (streamState === 0 || streamState === 1) songPlayer.play();
