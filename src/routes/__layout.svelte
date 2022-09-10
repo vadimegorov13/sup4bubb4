@@ -25,9 +25,6 @@
     params = page.params;
   });
 
-  console.log('path:', path);
-  console.log('params:', params);
-
   onMount(() => {
     if (analyticsId) webVitals({ path, params, analyticsId });
   });
