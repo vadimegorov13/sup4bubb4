@@ -50,7 +50,8 @@ const getStreamData = async (items: any, streams: Stream[]) => {
           (item.snippet.title.toLowerCase().includes('supa') ||
             item.snippet.title.toLowerCase().includes('bubb4bot') ||
             item.snippet.title.toLowerCase().includes('superchat') ||
-            item.snippet.title.toLowerCase().includes('yoi')) &&
+            item.snippet.title.toLowerCase().includes('yoi') ||
+            item.snippet.title.toLowerCase().includes('mcthankies')) &&
           !item.snippet.title.toLowerCase().includes('SUPA BUNNY') &&
           item.status.uploadStatus !== 'uploaded'
         ) {
@@ -163,7 +164,7 @@ export const saveCompleteList = async () => {
 
 // Combine songs with appropriate stream
 export const updateStreamList = async () => {
-  const streams: Stream[] = await getPlaylist('', [], 5, true);
+  const streams: Stream[] = await getPlaylist('', [], 50, false);
 
   if (!streams.length) return [];
 
