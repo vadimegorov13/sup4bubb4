@@ -13,11 +13,11 @@ import { updateVodList } from './supa/supaFunctions';
 const app = express();
 
 app.get('/api/streams', getAllVods);
-app.get('/api/stream/:streamId', getVod);
-app.get('/api/songs/:streamId', getSongs);
+app.get('/api/stream/:vodId', getVod);
+app.get('/api/songs/:vodId', getSongs);
 app.post('/api/saveallsupas', saveAllSupaVods);
 app.post('/api/updatesupas', updateSupaVods);
-app.post('/api/offset/:streamId', offset);
+app.post('/api/offset/:vodId', offset);
 
 exports.app = functions
   .runWith({

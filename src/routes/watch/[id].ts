@@ -12,6 +12,8 @@ export const GET: RequestHandler = async ({ params }) => {
     return { status: 404 };
   }
 
+  console.log(stream);
+
   return {
     status: 200,
     body: {
