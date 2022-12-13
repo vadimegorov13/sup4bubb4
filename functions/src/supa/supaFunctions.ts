@@ -4,76 +4,78 @@ import * as rp from 'request-promise';
 import { db } from '../config/firebase';
 import { API_KEY, playlistAPI, SE_API, VIDEOS_API } from './api_urls';
 import { getSongsTiming } from './helperFunctions';
-import { Song, Stream } from './types';
+import { Song, Vod } from './types';
 
 // Get uploads playlist
 const getPlaylist = async (
   nextPageToken: string = '',
-  streams: Stream[] = [],
+  vods: Vod[] = [],
   maxResult: number = 50,
   runOnce: boolean = false
 ) => {
-  const result: Stream[] = await rp
+  const result: Vod[] = await rp
     .get(playlistAPI(nextPageToken, maxResult))
     .then((response) => JSON.parse(response))
     .then(async (list: any) => {
-      streams = await getStreamData(list.items, streams);
+      vods = await getVodData(list.items, vods);
 
       if (list.items.length < maxResult || runOnce) {
-        return streams;
+        return vods;
       }
 
-      return await getPlaylist(list.nextPageToken, streams, maxResult);
+      return await getPlaylist(list.nextPageToken, vods, maxResult);
     })
     .catch((err) => {
       console.log('Failed to fetch playlist\nError:', err);
-      return streams;
+      return vods;
     });
 
   return result;
 };
 
-// Get all streams from the playlist
-const getStreamData = async (items: any, streams: Stream[]) => {
-  const videoIds = items.map((item: any) => {
-    return item.contentDetails.videoId;
-  });
+/**
+ * This function return list of vods that meet certain conditions.
+ *
+ * The items argument is an array videos from the playlist,
+ * and vods is an array of Vod objects.
+ */
+const getVodData = async (items: any, vods: Vod[]) => {
+  const videoIds = items.map((item: any) => item.contentDetails.videoId);
 
-  const result: Stream[] = await rp
+  const list: any = await rp
     .get(`${VIDEOS_API}&id=${videoIds}&key=${API_KEY}`)
     .then((response) => JSON.parse(response))
-    .then((list: any) => list.items)
-    .then((items) => {
-      items.forEach((item: any) => {
-        // Check if supa or yoi stream
-        if (
-          (item.snippet.title.toLowerCase().includes('supa') ||
-            item.snippet.title.toLowerCase().includes('bubb4bot') ||
-            item.snippet.title.toLowerCase().includes('superchat') ||
-            item.snippet.title.toLowerCase().includes('yoi') ||
-            item.snippet.title.toLowerCase().includes('mcthankies')) &&
-          !item.snippet.title.toLowerCase().includes('SUPA BUNNY') &&
-          item.status.uploadStatus !== 'uploaded'
-        ) {
-          // Add to the list
-          streams.push({
-            id: item.id,
-            title: item.snippet.title,
-            publishedAt: item.snippet.publishedAt,
-            duration: item.contentDetails.duration,
-            liveStreamingDetails: item.liveStreamingDetails,
-          });
-        }
-      });
-
-      return streams;
-    })
     .catch((err) => {
       console.log('Failed to fetch video data\nError:', err);
-      return streams;
+      return vods;
     });
 
-  return result;
+  list.items
+    // Filter vods by title
+    .filter((item: any) => {
+      const title = item.snippet.title.toLowerCase();
+      return (
+        (title.includes('supa') ||
+          title.includes('bubb4bot') ||
+          title.includes('superchat') ||
+          title.includes('yoi') ||
+          title.includes('mcthankies')) &&
+        !title.includes('SUPA BUNNY') &&
+        item.status.uploadStatus !== 'uploaded'
+      );
+    })
+    // Add to the list
+    .forEach((item: any) => {
+      vods.push({
+        id: item.id,
+        title: item.snippet.title,
+        publishedAt: item.snippet.publishedAt,
+        duration: item.contentDetails.duration,
+        liveStreamingDetails: item.liveStreamingDetails,
+      });
+    });
+
+  return vods;
 };
 
 // Get full history of music requests on bubb4bot
@@ -113,9 +115,9 @@ const getHistory = async (
   return result;
 };
 
-const saveStream = async (stream: Stream, songs: Song[]) => {
-  const startDate = stream.liveStreamingDetails.actualStartTime.slice(0, 10);
-  const endDate = stream.liveStreamingDetails.actualEndTime.slice(0, 10) || '';
+const saveVod = async (vod: Vod, songs: Song[]) => {
+  const startDate = vod.liveStreamingDetails.actualStartTime.slice(0, 10);
+  const endDate = vod.liveStreamingDetails.actualEndTime.slice(0, 10) || '';
 
   console.log('filtering songs');
   const playlist: Song[] = songs.filter((song) => {
@@ -129,52 +131,52 @@ const saveStream = async (stream: Stream, songs: Song[]) => {
   if (playlist.length !== 0) {
     console.log('setting timing');
     const timedPlaylist = (await getSongsTiming(
-      stream.liveStreamingDetails.actualStartTime,
+      vod.liveStreamingDetails.actualStartTime,
       playlist
     )) as Song[];
 
-    console.log(`saving stream ${stream.title}`);
+    console.log(`saving vod ${vod.title}`);
     await db
-      .collection('streams')
-      .doc(stream.id)
-      .set(stream)
+      .collection('vods')
+      .doc(vod.id)
+      .set(vod)
       .then(async () => {
         console.log('saving songs');
         await db
           .collection('songs')
-          .doc(stream.id)
+          .doc(vod.id)
           .set({ playlist: timedPlaylist });
       });
   }
 };
 
-// Combine songs with appropriate stream
+// Combine songs with appropriate vod
 export const saveCompleteList = async () => {
   const songs: Song[] = await getHistory();
-  const streams: Stream[] = await getPlaylist();
+  const vods: Vod[] = await getPlaylist();
 
-  // Iterate throught every stream and assign songs to it
-  console.log('Iterating streams');
-  streams.forEach(async (stream) => {
-    saveStream(stream, songs);
+  // Iterate throught every vod and assign songs to it
+  console.log('Iterating vods');
+  vods.forEach(async (vod) => {
+    saveVod(vod, songs);
   });
 
-  return streams;
+  return vods;
 };
 
-// Combine songs with appropriate stream
-export const updateStreamList = async () => {
-  const streams: Stream[] = await getPlaylist('', [], 50, false);
+// Combine songs with appropriate vod
+export const updateVodList = async () => {
+  const vods: Vod[] = await getPlaylist('', [], 50, false);
 
-  if (!streams.length) return [];
+  if (!vods.length) return [];
 
   const songs: Song[] = await getHistory(100, 0, [], true);
 
-  // Iterate throught every stream and assign songs to it
-  streams.forEach(async (stream) => {
+  // Iterate throught every vod and assign songs to it
+  vods.forEach(async (vod) => {
     const exit = await db
-      .collection('streams')
-      .doc(stream.id)
+      .collection('vods')
+      .doc(vod.id)
       .get()
       .then((res) => {
         if (res.exists) {
@@ -185,24 +187,24 @@ export const updateStreamList = async () => {
 
     if (exit) return;
 
-    saveStream(stream, songs);
+    saveVod(vod, songs);
   });
 
-  return streams;
+  return vods;
 };
 
-export const setOffset = async (streamId: string, offset: number) => {
-  console.log(`setting ${offset}s offset for ${streamId}`);
+export const setOffset = async (vodId: string, offset: number) => {
+  console.log(`setting ${offset}s offset for ${vodId}`);
   return await db
-    .collection('streams')
-    .doc(streamId)
+    .collection('vods')
+    .doc(vodId)
     .get()
     .then(async (doc) => {
-      const data = doc.data() as Stream;
+      const data = doc.data() as Vod;
       if (data) {
         await db
-          .collection('streams')
-          .doc(streamId)
+          .collection('vods')
+          .doc(vodId)
           .set({ ...data, offset });
         return true;
       }
