@@ -1,23 +1,23 @@
 import * as express from 'express';
 import * as functions from 'firebase-functions';
 import {
-  getAllStreams,
+  getAllVods,
   getSongs,
-  getStream,
+  getVod,
   offset,
-  saveAllSupaStreams,
-  updateSupaStreams,
+  saveAllSupaVods,
+  updateSupaVods,
 } from './controller';
-import { updateStreamList } from './supa/supaFunctions';
+import { updateVodList } from './supa/supaFunctions';
 
 const app = express();
 
-app.get('/api/streams', getAllStreams);
-app.post('/api/saveallsupas', saveAllSupaStreams);
-app.post('/api/updatesupas', updateSupaStreams);
-app.post('/api/offset/:streamId', offset);
-app.get('/api/stream/:streamId', getStream);
+app.get('/api/streams', getAllVods);
+app.get('/api/stream/:streamId', getVod);
 app.get('/api/songs/:streamId', getSongs);
+app.post('/api/saveallsupas', saveAllSupaVods);
+app.post('/api/updatesupas', updateSupaVods);
+app.post('/api/offset/:streamId', offset);
 
 exports.app = functions
   .runWith({
@@ -29,13 +29,13 @@ exports.app = functions
 exports.scheduledDailyUpdate = functions.pubsub
   .schedule('every 12 hours')
   .onRun(async () => {
-    console.log('Daily supa stream check');
-    const streams = await updateStreamList();
+    console.log('Daily supa vod check');
 
-    if (streams.length === 0) {
-      console.log('No new supa streams');
+    const vods = await updateVodList();
+    if (vods.length === 0) {
+      console.log('No new supas');
       return;
     }
 
-    console.log('Updated supa stream list');
+    console.log('Updated supa list');
   });

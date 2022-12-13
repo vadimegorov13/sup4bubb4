@@ -4,9 +4,9 @@ import {
   checkAdmin,
   saveCompleteList,
   setOffset,
-  updateStreamList,
+  updateVodList,
 } from './supa/supaFunctions';
-import { Request, Song, Stream } from './supa/types';
+import { Request, Song, Vod } from './supa/types';
 
 const authorize = async (req: Request, res: Response) => {
   if (
@@ -40,15 +40,15 @@ const authorize = async (req: Request, res: Response) => {
   }
 };
 
-export const saveAllSupaStreams = async (req: Request, res: Response) => {
+export const saveAllSupaVods = async (req: Request, res: Response) => {
   await authorize(req, res);
 
   try {
-    const streams: Stream[] = await saveCompleteList();
+    const vods: Vod[] = await saveCompleteList();
     return res.status(200).json({
       status: 'Success',
-      message: 'Supa streams saved successfully',
-      data: streams,
+      message: 'Supa vods saved successfully',
+      data: vods,
     });
   } catch (error: any) {
     return res.status(500).json({
@@ -58,23 +58,23 @@ export const saveAllSupaStreams = async (req: Request, res: Response) => {
   }
 };
 
-export const updateSupaStreams = async (req: Request, res: Response) => {
+export const updateSupaVods = async (req: Request, res: Response) => {
   await authorize(req, res);
 
   try {
-    const streams: Stream[] = await updateStreamList();
+    const vods: Vod[] = await updateVodList();
 
-    if (streams.length === 0) {
+    if (vods.length === 0) {
       return res.status(200).json({
         status: 'Success',
-        message: 'No new supa streams',
+        message: 'No new supa vods',
       });
     }
 
     return res.status(200).json({
       status: 'Success',
-      message: 'Supa streams updated successfully',
-      data: streams,
+      message: 'Supa vods updated successfully',
+      data: vods,
     });
   } catch (error: any) {
     return res.status(500).json({
@@ -89,20 +89,22 @@ export const offset = async (req: Request, res: Response) => {
 
   try {
     const {
-      params: { streamId },
+      params: { vodId },
       body: { offset },
     } = req;
 
-    if (await setOffset(streamId, offset)) {
+    const result = await setOffset(vodId, offset);
+
+    if (result) {
       return res.status(200).json({
         status: 'Success',
-        message: `${offset}s offset for ${streamId} has been set`,
+        message: `${offset}s offset for ${vodId} has been set`,
       });
     }
 
     return res.status(400).json({
       status: 'Bad Request',
-      message: "Stream doesn't exist",
+      message: "Vod doesn't exist",
     });
   } catch (error: any) {
     return res.status(500).json({
@@ -112,17 +114,16 @@ export const offset = async (req: Request, res: Response) => {
   }
 };
 
-export const getAllStreams = async (req: Request, res: Response) => {
+export const getAllVods = async (req: Request, res: Response) => {
   try {
-    const streams: Stream[] = [];
-    await db
-      .collection('streams')
+    const snapshot = await db
+      .collection('vods')
       .orderBy('publishedAt', 'desc')
-      .get()
-      .then((snapshot) => {
-        snapshot.forEach((doc: any) => streams.push(doc.data()));
-      });
-    return res.status(200).json(streams);
+      .get();
+
+    const vods: Vod[] = snapshot.docs.map((doc: any) => doc.data());
+
+    return res.status(200).json(vods);
   } catch (error: any) {
     return res.status(500).json({
       status: 'Internal Server Error',
@@ -131,21 +132,16 @@ export const getAllStreams = async (req: Request, res: Response) => {
   }
 };
 
-export const getStream = async (req: Request, res: Response) => {
+export const getVod = async (req: Request, res: Response) => {
   const {
-    params: { streamId },
+    params: { vodId },
   } = req;
 
   try {
-    const stream = await db
-      .collection('streams')
-      .doc(streamId)
-      .get()
-      .then((doc) => {
-        return doc.data();
-      });
+    const doc = await db.collection('vods').doc(vodId).get();
+    const vod = doc.data() || {};
 
-    return res.status(200).json(stream);
+    return res.status(200).json(vod);
   } catch (error: any) {
     return res.status(500).json({
       status: 'Internal Server Error',
@@ -156,21 +152,12 @@ export const getStream = async (req: Request, res: Response) => {
 
 export const getSongs = async (req: Request, res: Response) => {
   const {
-    params: { streamId },
+    params: { vodId },
   } = req;
 
   try {
-    const songs: Song[] = await db
-      .collection('songs')
-      .doc(streamId)
-      .get()
-      .then((res) => {
-        const songsData = res.data();
-
-        if (songsData) return songsData.playlist as Song[];
-        return [];
-        // snapshot.forEach((doc: any) => songs.push(doc.data()));
-      });
+    const doc = await db.collection('songs').doc(vodId).get();
+    const songs: Song[] = doc.data()?.playlist || [];
 
     return res.status(200).json(songs);
   } catch (error: any) {

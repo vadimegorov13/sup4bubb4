@@ -16,25 +16,25 @@ type Song = {
   startTime?: number;
 };
 
-type StreamDetails = {
+type VodDetails = {
   actualStartTime: string;
   actualEndTime: string;
   scheduledStartTime: string;
 };
 
-type Stream = {
+type Vod = {
   id: string;
   title: string;
   publishedAt: string;
   duration: string;
-  liveStreamingDetails: StreamDetails;
+  liveStreamingDetails: VodDetails;
   offset?: number;
 };
 
 type Request = {
   body: { offset: number };
   headers: ExpressRequest['headers'];
-  params: { streamId: string };
+  params: { vodId: string };
 };
 
-export { Song, Stream, Request };
+export { Song, Vod, Request };
