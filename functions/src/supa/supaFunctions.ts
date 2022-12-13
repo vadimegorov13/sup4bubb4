@@ -12,25 +12,21 @@ const getPlaylist = async (
   vods: Vod[] = [],
   maxResult: number = 50,
   runOnce: boolean = false
-) => {
-  const result: Vod[] = await rp
-    .get(playlistAPI(nextPageToken, maxResult))
-    .then((response) => JSON.parse(response))
-    .then(async (list: any) => {
-      vods = await getVodData(list.items, vods);
+): Promise<Vod[]> => {
+  try {
+    const response: any = await rp.get(playlistAPI(nextPageToken, maxResult));
+    const vodList = JSON.parse(response);
+    vods = await getVodsData(vodList.items, vods);
 
-      if (list.items.length < maxResult || runOnce) {
-        return vods;
-      }
-
-      return await getPlaylist(list.nextPageToken, vods, maxResult);
-    })
-    .catch((err) => {
-      console.log('Failed to fetch playlist\nError:', err);
+    if (vodList.items.length < maxResult || runOnce) {
       return vods;
-    });
+    }
 
-  return result;
+    return await getPlaylist(vodList.nextPageToken, vods, maxResult);
+  } catch (err) {
+    console.log('Failed to fetch playlist\nError:', err);
+    return vods;
+  }
 };
 
 /**
@@ -39,41 +35,38 @@ const getPlaylist = async (
  * The items argument is an array videos from the playlist,
  * and vods is an array of Vod objects.
  */
-const getVodData = async (items: any, vods: Vod[]) => {
+const getVodsData = async (items: any, vods: Vod[]) => {
   const videoIds = items.map((item: any) => item.contentDetails.videoId);
 
-  const list: any = await rp
-    .get(`${VIDEOS_API}&id=${videoIds}&key=${API_KEY}`)
-    .then((response) => JSON.parse(response))
-    .catch((err) => {
-      console.log('Failed to fetch video data\nError:', err);
-      return vods;
+  try {
+    const response = await rp.get(
+      `${VIDEOS_API}&id=${videoIds}&key=${API_KEY}`
+    );
+    const vodList = JSON.parse(response).items;
+    const filteredVodList = vodList.filter((vod: any) => {
+      const title = vod.snippet.title.toLowerCase();
+      const keywords = ['supa', 'bubb4bot', 'superchat', 'yoi', 'mcthankies'];
+      const blacklist = ['supa bunny'];
+      return (
+        keywords.some((keyword) => title.includes(keyword)) &&
+        !blacklist.some((keyword) => title.includes(keyword)) &&
+        vod.status.uploadStatus !== 'uploaded'
+      );
     });
 
-  list.items
-    // Filter vods by title
-    .filter((item: any) => {
-      const title = item.snippet.title.toLowerCase();
-      return (
-        (title.includes('supa') ||
-          title.includes('bubb4bot') ||
-          title.includes('superchat') ||
-          title.includes('yoi') ||
-          title.includes('mcthankies')) &&
-        !title.includes('SUPA BUNNY') &&
-        item.status.uploadStatus !== 'uploaded'
-      );
-    })
-    // Add to the list
-    .forEach((item: any) => {
-      vods.push({
-        id: item.id,
-        title: item.snippet.title,
-        publishedAt: item.snippet.publishedAt,
-        duration: item.contentDetails.duration,
-        liveStreamingDetails: item.liveStreamingDetails,
-      });
-    });
+    vods.push(
+      ...filteredVodList.map((vod: any) => ({
+        id: vod.id,
+        title: vod.snippet.title,
+        publishedAt: vod.snippet.publishedAt,
+        duration: vod.contentDetails.duration,
+        liveStreamingDetails: vod.liveStreamingDetails,
+      }))
+    );
+  } catch (err) {
+    console.error('Failed to fetch vods data', err);
+    return vods;
+  }
 
   return vods;
 };
@@ -84,70 +77,57 @@ const getHistory = async (
   offset: number = 0,
   songs: Song[] = [],
   runOnce: boolean = false
-) => {
-  const result: Song[] = await rp
-    .get(`${SE_API}?limit=${limit}&offset=${offset}`)
-    .then((response) => JSON.parse(response))
-    .then((result: any) => result.history)
-    .then(async (items) => {
-      items.forEach((item: any) => {
-        songs.push({
-          id: item.song.videoId,
-          duration: item.song.duration,
-          title: item.song.title,
-          channel: item.song.channel,
-          createdAt: item.createdAt,
-          user: item.song.user,
-        });
-      });
+): Promise<Song[]> => {
+  try {
+    const response = await rp.get(`${SE_API}?limit=${limit}&offset=${offset}`);
+    const songHistory = JSON.parse(response).history;
+    songs.push(
+      ...songHistory.map((song: any) => ({
+        id: song.song.videoId,
+        duration: song.song.duration,
+        title: song.song.title,
+        channel: song.song.channel,
+        createdAt: song.createdAt,
+        user: song.song.user,
+      }))
+    );
 
-      if (items.length < 100 || runOnce) {
-        return songs;
-      }
-
-      return await getHistory(limit, offset + limit, songs);
-    })
-    .catch((err) => {
-      console.log('Failed to fetch history\nError:', err);
+    if (songHistory.length < limit || runOnce) {
       return songs;
-    });
+    }
 
-  return result;
+    return await getHistory(limit, offset + limit, songs);
+  } catch (err) {
+    console.error('Failed to fetch song request history', err);
+    return songs;
+  }
 };
 
-const saveVod = async (vod: Vod, songs: Song[]) => {
+const saveSupaVod = async (vod: Vod, songs: Song[]) => {
   const startDate = vod.liveStreamingDetails.actualStartTime.slice(0, 10);
   const endDate = vod.liveStreamingDetails.actualEndTime.slice(0, 10) || '';
 
   console.log('filtering songs');
   const playlist: Song[] = songs.filter((song) => {
     const createdAt = song.createdAt.slice(0, 10);
-    if (createdAt === startDate || createdAt === endDate) {
-      return true;
-    }
-    return false;
+    return createdAt === startDate || createdAt === endDate;
   });
 
-  if (playlist.length !== 0) {
-    console.log('setting timing');
-    const timedPlaylist = (await getSongsTiming(
-      vod.liveStreamingDetails.actualStartTime,
-      playlist
-    )) as Song[];
-
-    console.log(`saving vod ${vod.title}`);
-    await db
-      .collection('vods')
-      .doc(vod.id)
-      .set(vod)
-      .then(async () => {
-        console.log('saving songs');
-        await db
-          .collection('songs')
-          .doc(vod.id)
-          .set({ playlist: timedPlaylist });
-      });
+  if (playlist.length === 0) {
+    return;
   }
+
+  console.log('setting timing');
+  const timedPlaylist = (await getSongsTiming(
+    vod.liveStreamingDetails.actualStartTime,
+    playlist
+  )) as Song[];
+
+  console.log(`saving vod ${vod.title}`);
+  await db.collection('vods').doc(vod.id).set(vod);
+
+  console.log('saving songs');
+  await db.collection('songs').doc(vod.id).set({ playlist: timedPlaylist });
 };
 
 // Combine songs with appropriate vod
@@ -156,12 +136,14 @@ export const saveCompleteList = async () => {
   const vods: Vod[] = await getPlaylist();
 
   // Iterate throught every vod and assign songs to it
-  console.log('Iterating vods');
-  vods.forEach(async (vod) => {
-    saveVod(vod, songs);
-  });
+  const savedVods = await Promise.all(
+    vods.map(async (vod) => {
+      await saveSupaVod(vod, songs);
+      return vod;
+    })
+  );
 
-  return vods;
+  return savedVods;
 };
 
 // Combine songs with appropriate vod
@@ -173,60 +155,43 @@ export const updateVodList = async () => {
   const songs: Song[] = await getHistory(100, 0, [], true);
 
   // Iterate throught every vod and assign songs to it
-  vods.forEach(async (vod) => {
-    const exit = await db
-      .collection('vods')
-      .doc(vod.id)
-      .get()
-      .then((res) => {
-        if (res.exists) {
-          return true;
-        }
-        return false;
-      });
+  for (const vod of vods) {
+    const doc = await db.collection('vods').doc(vod.id).get();
+    if (doc.exists) {
+      continue;
+    }
 
-    if (exit) return;
-
-    saveVod(vod, songs);
-  });
+    await saveSupaVod(vod, songs);
+  }
 
   return vods;
 };
 
 export const setOffset = async (vodId: string, offset: number) => {
   console.log(`setting ${offset}s offset for ${vodId}`);
-  return await db
+
+  const doc = await db.collection('vods').doc(vodId).get();
+  const data = doc.data() as Vod;
+  if (!data) {
+    return false;
+  }
+
+  await db
     .collection('vods')
     .doc(vodId)
-    .get()
-    .then(async (doc) => {
-      const data = doc.data() as Vod;
-      if (data) {
-        await db
-          .collection('vods')
-          .doc(vodId)
-          .set({ ...data, offset });
-        return true;
-      }
-      return false;
-    });
+    .set({ ...data, offset });
+  return true;
 };
 
 export const checkAdmin = async (apiKey: string) => {
   if (!apiKey) return false;
 
   const hashedAPIKey = createHash('md5').update(apiKey).digest('hex');
-  const adminKey: string | '' = await db
-    .collection('apiKey')
-    .doc('admin')
-    .get()
-    .then((doc) => {
-      const data = doc.data();
-      if (data) return data.hashedAPIKey as string;
-      return '';
-    });
+  const doc = await db.collection('apiKey').doc('admin').get();
+  const data = doc.data();
+  if (!data) {
+    return false;
+  }
 
-  if (hashedAPIKey === adminKey) return true;
-
-  return false;
+  return hashedAPIKey === data.hashedAPIKey;
 };

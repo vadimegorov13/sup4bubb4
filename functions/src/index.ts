@@ -13,11 +13,11 @@ import { updateVodList } from './supa/supaFunctions';
 const app = express();
 
 app.get('/api/streams', getAllVods);
+app.get('/api/stream/:streamId', getVod);
+app.get('/api/songs/:streamId', getSongs);
 app.post('/api/saveallsupas', saveAllSupaVods);
 app.post('/api/updatesupas', updateSupaVods);
 app.post('/api/offset/:streamId', offset);
-app.get('/api/stream/:streamId', getVod);
-app.get('/api/songs/:streamId', getSongs);
 
 exports.app = functions
   .runWith({
@@ -30,8 +30,8 @@ exports.scheduledDailyUpdate = functions.pubsub
   .schedule('every 12 hours')
   .onRun(async () => {
     console.log('Daily supa vod check');
-    const vods = await updateVodList();
 
+    const vods = await updateVodList();
     if (vods.length === 0) {
       console.log('No new supas');
       return;

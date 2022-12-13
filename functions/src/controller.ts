@@ -93,7 +93,9 @@ export const offset = async (req: Request, res: Response) => {
       body: { offset },
     } = req;
 
-    if (await setOffset(vodId, offset)) {
+    const result = await setOffset(vodId, offset);
+
+    if (result) {
       return res.status(200).json({
         status: 'Success',
         message: `${offset}s offset for ${vodId} has been set`,
@@ -114,14 +116,13 @@ export const offset = async (req: Request, res: Response) => {
 
 export const getAllVods = async (req: Request, res: Response) => {
   try {
-    const vods: Vod[] = [];
-    await db
+    const snapshot = await db
       .collection('vods')
       .orderBy('publishedAt', 'desc')
-      .get()
-      .then((snapshot) => {
-        snapshot.forEach((doc: any) => vods.push(doc.data()));
-      });
+      .get();
+
+    const vods: Vod[] = snapshot.docs.map((doc: any) => doc.data());
+
     return res.status(200).json(vods);
   } catch (error: any) {
     return res.status(500).json({
@@ -137,13 +138,8 @@ export const getVod = async (req: Request, res: Response) => {
   } = req;
 
   try {
-    const vod = await db
-      .collection('vods')
-      .doc(vodId)
-      .get()
-      .then((doc) => {
-        return doc.data();
-      });
+    const doc = await db.collection('vods').doc(vodId).get();
+    const vod = doc.data() || {};
 
     return res.status(200).json(vod);
   } catch (error: any) {
@@ -160,17 +156,8 @@ export const getSongs = async (req: Request, res: Response) => {
   } = req;
 
   try {
-    const songs: Song[] = await db
-      .collection('songs')
-      .doc(vodId)
-      .get()
-      .then((res) => {
-        const songsData = res.data();
-
-        if (songsData) return songsData.playlist as Song[];
-        return [];
-        // snapshot.forEach((doc: any) => songs.push(doc.data()));
-      });
+    const doc = await db.collection('songs').doc(vodId).get();
+    const songs: Song[] = doc.data()?.playlist || [];
 
     return res.status(200).json(songs);
   } catch (error: any) {
