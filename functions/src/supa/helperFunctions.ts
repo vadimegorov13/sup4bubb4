@@ -10,12 +10,11 @@ import { Song } from './types';
  */
 export const getSongsTiming = async (startTime: string, songs: Song[]) => {
   const startTimestamp = new Date(startTime).getTime();
-  const timedSongs = songs.reverse().map((song, i) => {
+  const timedSongs: Song[] = songs.reverse().map((song, i) => {
     const songTimestamp = new Date(song.createdAt).getTime();
     return {
       ...song,
-      startTime:
-        (songTimestamp - startTimestamp) / 1000 - (i === 0 ? song.duration : 0),
+      startTime: (songTimestamp - startTimestamp) / 1000 - song.duration,
     };
   });
 

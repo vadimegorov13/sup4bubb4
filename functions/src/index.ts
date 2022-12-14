@@ -12,8 +12,8 @@ import { updateVodList } from './supa/supaFunctions';
 
 const app = express();
 
-app.get('/api/streams', getAllVods);
-app.get('/api/stream/:vodId', getVod);
+app.get('/api/vods', getAllVods);
+app.get('/api/vods/:vodId', getVod);
 app.get('/api/songs/:vodId', getSongs);
 app.post('/api/saveallsupas', saveAllSupaVods);
 app.post('/api/updatesupas', updateSupaVods);
