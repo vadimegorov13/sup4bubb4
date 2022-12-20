@@ -26,6 +26,7 @@ exports.app = functions
   })
   .https.onRequest(app);
 
+// Check every 12 hours for the new supachat vods
 exports.scheduledDailyUpdate = functions.pubsub
   .schedule('every 12 hours')
   .onRun(async () => {

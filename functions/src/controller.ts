@@ -8,6 +8,7 @@ import {
 } from './supa/supaFunctions';
 import { Request, Song, Vod } from './supa/types';
 
+// Check if user is authorized
 const authorize = async (req: Request, res: Response) => {
   if (
     !req.headers.authorization ||
@@ -40,6 +41,7 @@ const authorize = async (req: Request, res: Response) => {
   }
 };
 
+// Save every supachat vod
 export const saveAllSupaVods = async (req: Request, res: Response) => {
   await authorize(req, res);
 
@@ -58,6 +60,7 @@ export const saveAllSupaVods = async (req: Request, res: Response) => {
   }
 };
 
+// Save recent supachat vod
 export const updateSupaVods = async (req: Request, res: Response) => {
   await authorize(req, res);
 
@@ -84,6 +87,7 @@ export const updateSupaVods = async (req: Request, res: Response) => {
   }
 };
 
+// Give offset to the supachat vod
 export const offset = async (req: Request, res: Response) => {
   await authorize(req, res);
 
@@ -114,6 +118,7 @@ export const offset = async (req: Request, res: Response) => {
   }
 };
 
+// Get the list of vods with bubb4bot
 export const getAllVods = async (req: Request, res: Response) => {
   try {
     const snapshot = await db
@@ -150,6 +155,7 @@ export const getVod = async (req: Request, res: Response) => {
   }
 };
 
+// Get songs for one vod
 export const getSongs = async (req: Request, res: Response) => {
   const {
     params: { vodId },

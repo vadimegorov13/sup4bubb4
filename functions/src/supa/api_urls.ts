@@ -1,3 +1,5 @@
+// This file returns apis for StreamElements and YouTube
+
 const API_KEY = 'AIzaSyA_U0MD8iQ5X11GzrwAQpfXvxf6rtgVWHg';
 const PLAYLIST_ID = 'UUyl1z3jo3XHR1riLFKG5UAg';
 const SE_ID = '5f9f61c9389f1af859e15be1';
@@ -7,6 +9,7 @@ const PLAYLIST_API =
 const VIDEOS_API =
   'https://youtube.googleapis.com/youtube/v3/videos?part=status%2C%20snippet%2C%20liveStreamingDetails%2C%20contentDetails';
 
+// Get videos from the playlist
 const playlistAPI = (nextPageToken: string, maxResult: number) => {
   return `${PLAYLIST_API}&maxResults=${maxResult}&pageToken=${nextPageToken}&playlistId=${PLAYLIST_ID}&key=${API_KEY}`;
 };

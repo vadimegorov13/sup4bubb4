@@ -1,6 +1,12 @@
 import * as admin from 'firebase-admin';
 import * as functions from 'firebase-functions';
 
+/**
+ * Initialize firebase-admin
+ *
+ * To configure functions.config() follow the documentation:
+ * https://firebase.google.com/docs/functions/config-env
+ */
 admin.initializeApp({
   credential: admin.credential.cert({
     privateKey: functions.config().private.key.replace(/\\n/g, '\n'),
@@ -12,4 +18,5 @@ admin.initializeApp({
 
 const db = admin.firestore();
 const FieldValue = admin.firestore.FieldValue;
+
 export { admin, db, FieldValue };

@@ -6,7 +6,16 @@ import { API_KEY, playlistAPI, SE_API, VIDEOS_API } from './api_urls';
 import { getSongsTiming } from './helperFunctions';
 import { Song, Vod } from './types';
 
-// Get uploads playlist
+/**
+ * Recursive function that returns full list of vods
+ *  Fetches data from the youtube api
+ *
+ * @param nextPageToken String that represents the next page of the playlist
+ * @param vods This array gets passed to the next recursion to push new videos
+ * @param maxResult Maximum number of videos fetched in one recursion
+ * @param runOnce If true do not recurse
+ * @returns List of vods
+ */
 const getPlaylist = async (
   nextPageToken: string = '',
   vods: Vod[] = [],
@@ -14,14 +23,19 @@ const getPlaylist = async (
   runOnce: boolean = false
 ): Promise<Vod[]> => {
   try {
+    // Get list of videos
     const response: any = await rp.get(playlistAPI(nextPageToken, maxResult));
     const vodList = JSON.parse(response);
+
+    // Get full data of each video
     vods = await getVodsData(vodList.items, vods);
 
+    // Return if no more pages in the playlist or runOnce == true
     if (vodList.items.length < maxResult || runOnce) {
       return vods;
     }
 
+    // Recursion
     return await getPlaylist(vodList.nextPageToken, vods, maxResult);
   } catch (err) {
     console.log('Failed to fetch playlist\nError:', err);
@@ -30,19 +44,24 @@ const getPlaylist = async (
 };
 
 /**
- * This function return list of vods that meet certain conditions.
+ * This function return list of vods that meet certain conditions
  *
- * The items argument is an array videos from the playlist,
- * and vods is an array of Vod objects.
+ * @param items An array of videos from the playlist
+ * @param vods An array of videos with full data
+ * @returns Supachat vods
  */
-const getVodsData = async (items: any, vods: Vod[]) => {
+const getVodsData = async (items: any, vods: Vod[]): Promise<Vod[]> => {
+  // Extruct videoId from each item
   const videoIds = items.map((item: any) => item.contentDetails.videoId);
 
   try {
+    // Get full data of each video
     const response = await rp.get(
       `${VIDEOS_API}&id=${videoIds}&key=${API_KEY}`
     );
     const vodList = JSON.parse(response).items;
+
+    // Get videos that include {keywords}
     const filteredVodList = vodList.filter((vod: any) => {
       const title = vod.snippet.title.toLowerCase();
       const keywords = ['supa', 'bubb4bot', 'superchat', 'yoi', 'mcthankies'];
@@ -54,6 +73,7 @@ const getVodsData = async (items: any, vods: Vod[]) => {
       );
     });
 
+    // Push filtered videos to vods
     vods.push(
       ...filteredVodList.map((vod: any) => ({
         id: vod.id,
@@ -63,15 +83,25 @@ const getVodsData = async (items: any, vods: Vod[]) => {
         liveStreamingDetails: vod.liveStreamingDetails,
       }))
     );
+
+    return vods;
   } catch (err) {
     console.error('Failed to fetch vods data', err);
     return vods;
   }
-
-  return vods;
 };
 
-// Get full history of music requests on bubb4bot
+//
+
+/**
+ * Recursive function that returns history of song requests on bubb4bot
+ *
+ * @param limit Number of songs
+ * @param offset Skip songs
+ * @param songs This array gets passed to the next recursion to push new songs
+ * @param runOnce If true do not recurse
+ * @returns List of song requests
+ */
 const getHistory = async (
   limit: number = 100,
   offset: number = 0,
@@ -79,6 +109,7 @@ const getHistory = async (
   runOnce: boolean = false
 ): Promise<Song[]> => {
   try {
+    // Fetch list of requested songs
     const response = await rp.get(`${SE_API}?limit=${limit}&offset=${offset}`);
     const songHistory = JSON.parse(response).history;
     songs.push(
@@ -92,10 +123,12 @@ const getHistory = async (
       }))
     );
 
+    // Return if no more songs in the history or runOnce == true
     if (songHistory.length < limit || runOnce) {
       return songs;
     }
 
+    // Recursion
     return await getHistory(limit, offset + limit, songs);
   } catch (err) {
     console.error('Failed to fetch song request history', err);
@@ -103,35 +136,64 @@ const getHistory = async (
   }
 };
 
+/**
+ * Functions that saves supachat vod and songs to the db
+ *
+ * @param vod Supachat vod
+ * @param songs List of songs in the song request history
+ * @returns Nothing
+ */
 const saveSupaVod = async (vod: Vod, songs: Song[]) => {
+  // Get dates of the start and the end of the stream
   const startDate = vod.liveStreamingDetails.actualStartTime.slice(0, 10);
   const endDate = vod.liveStreamingDetails.actualEndTime.slice(0, 10) || '';
 
+  // Get songs that were requested during the stream
   console.log('filtering songs');
   const playlist: Song[] = songs.filter((song) => {
     const createdAt = song.createdAt.slice(0, 10);
     return createdAt === startDate || createdAt === endDate;
   });
 
+  /**
+   * If there is no songs that means bubb4bot was off during the stream
+   * Therefore, there is no need to save this stream to the db, so just return
+   */
   if (playlist.length === 0) {
     return;
   }
 
+  /**
+   * Give timestamp to each song relative to the start of the stream
+   *
+   * !!!! THIS FUNCTION IS NOT PERFECT !!!!
+   * It is impossible to calculate the exact time when the song was playing during
+   * the stream, because of the delay on StreamElement's or YouTube's side
+   */
   console.log('setting timing');
   const timedPlaylist = (await getSongsTiming(
     vod.liveStreamingDetails.actualStartTime,
     playlist
   )) as Song[];
 
+  // Save vod to the database
   console.log(`saving vod ${vod.title}`);
   await db.collection('vods').doc(vod.id).set(vod);
 
+  // Save list of songs to the database
   console.log('saving songs');
   await db.collection('songs').doc(vod.id).set({ playlist: timedPlaylist });
 };
 
 // Combine songs with appropriate vod
+
+/**
+ * Save every supachat vod and songs from bubb4bot
+ *
+ * @returns Nothing
+ */
 export const saveCompleteList = async () => {
+  // Get songs and vods
   const songs: Song[] = await getHistory();
   const vods: Vod[] = await getPlaylist();
 
@@ -146,12 +208,19 @@ export const saveCompleteList = async () => {
   return savedVods;
 };
 
-// Combine songs with appropriate vod
+/**
+ * Save latest supachat vod and songs from bubb4bot
+ *
+ * @returns Nothing
+ */
 export const updateVodList = async () => {
+  // Get new supachat vods
   const vods: Vod[] = await getPlaylist('', [], 50, false);
 
+  // Check if no supachat vods
   if (!vods.length) return [];
 
+  // Get new songs
   const songs: Song[] = await getHistory(100, 0, [], true);
 
   // Iterate throught every vod and assign songs to it
@@ -167,15 +236,26 @@ export const updateVodList = async () => {
   return vods;
 };
 
+/**
+ * Set offset to the video
+ * The offset will be applied to the songs
+ * !!!! MIGHT REMOVE THIS LATER !!!!
+ *
+ * @param vodId Vod
+ * @param offset Number in seconds
+ * @returns True or False
+ */
 export const setOffset = async (vodId: string, offset: number) => {
   console.log(`setting ${offset}s offset for ${vodId}`);
 
+  // Get vod by id
   const doc = await db.collection('vods').doc(vodId).get();
   const data = doc.data() as Vod;
   if (!data) {
     return false;
   }
 
+  // Set offset
   await db
     .collection('vods')
     .doc(vodId)
@@ -183,6 +263,13 @@ export const setOffset = async (vodId: string, offset: number) => {
   return true;
 };
 
+/**
+ * Validation function
+ * Checks if apiKey matches
+ *
+ * @param apiKey
+ * @returns True of False
+ */
 export const checkAdmin = async (apiKey: string) => {
   if (!apiKey) return false;
 
