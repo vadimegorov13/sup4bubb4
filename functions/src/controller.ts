@@ -3,8 +3,8 @@ import { db } from './config/firebase';
 import {
   checkAdmin,
   saveCompleteList,
-  setOffset,
   updateVodList,
+  changeStartTime,
 } from './supa/supaFunctions';
 import { Request, Song, Vod } from './supa/types';
 
@@ -87,28 +87,32 @@ export const updateSupaVods = async (req: Request, res: Response) => {
   }
 };
 
-// Give offset to the supachat vod
-export const offset = async (req: Request, res: Response) => {
+// Update start time of the song
+export const updateStartTime = async (req: Request, res: Response) => {
   await authorize(req, res);
 
   try {
     const {
-      params: { vodId },
-      body: { offset },
+      body: { vodId, songId, newStartTime, changeAll },
     } = req;
 
-    const result = await setOffset(vodId, offset);
+    const response = await changeStartTime(
+      vodId,
+      songId,
+      newStartTime,
+      changeAll
+    );
 
-    if (result) {
+    if (response.status === 200) {
       return res.status(200).json({
         status: 'Success',
-        message: `${offset}s offset for ${vodId} has been set`,
+        message: response.message,
       });
     }
 
     return res.status(400).json({
       status: 'Bad Request',
-      message: "Vod doesn't exist",
+      message: response.message,
     });
   } catch (error: any) {
     return res.status(500).json({

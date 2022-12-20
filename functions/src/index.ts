@@ -4,9 +4,9 @@ import {
   getAllVods,
   getSongs,
   getVod,
-  offset,
   saveAllSupaVods,
   updateSupaVods,
+  updateStartTime,
 } from './controller';
 import { updateVodList } from './supa/supaFunctions';
 
@@ -17,7 +17,7 @@ app.get('/api/vods/:vodId', getVod);
 app.get('/api/songs/:vodId', getSongs);
 app.post('/api/saveallsupas', saveAllSupaVods);
 app.post('/api/updatesupas', updateSupaVods);
-app.post('/api/offset/:vodId', offset);
+app.post('/api/updatestarttime/', updateStartTime);
 
 exports.app = functions
   .runWith({

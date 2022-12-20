@@ -237,33 +237,6 @@ export const updateVodList = async () => {
 };
 
 /**
- * Set offset to the video
- * The offset will be applied to the songs
- * !!!! MIGHT REMOVE THIS LATER !!!!
- *
- * @param vodId Vod
- * @param offset Number in seconds
- * @returns True or False
- */
-export const setOffset = async (vodId: string, offset: number) => {
-  console.log(`setting ${offset}s offset for ${vodId}`);
-
-  // Get vod by id
-  const doc = await db.collection('vods').doc(vodId).get();
-  const data = doc.data() as Vod;
-  if (!data) {
-    return false;
-  }
-
-  // Set offset
-  await db
-    .collection('vods')
-    .doc(vodId)
-    .set({ ...data, offset });
-  return true;
-};
-
-/**
  * Validation function
  * Checks if apiKey matches
  *
@@ -281,4 +254,76 @@ export const checkAdmin = async (apiKey: string) => {
   }
 
   return hashedAPIKey === data.hashedAPIKey;
+};
+
+// TODO: FINISH this shit
+
+// This function will change the startTime of one song
+// which will change startTime of every other song relative to this one song
+export const changeStartTime = async (
+  vodId: string,
+  songId: string,
+  newStartTime: number,
+  changeAll: boolean = false
+) => {
+  // get songs by vodId
+  const doc = await db.collection('songs').doc(vodId).get();
+  const songs: Song[] | undefined = doc.data()?.playlist || undefined;
+
+  if (!songs) {
+    return {
+      status: 400,
+      message: `Vod with id:${vodId} doesn't exist`,
+    };
+  }
+
+  const song: Song | undefined = songs.find((song) => song.id === songId);
+  if (!song) {
+    return {
+      status: 400,
+      message: `Song with id:${songId} doesn't exist in this list`,
+    };
+  }
+
+  let updatedSongs: Song[];
+
+  if (!changeAll) {
+    // Assign new
+    updatedSongs = songs.map((s) => {
+      if (s.id === songId) {
+        return { ...s, startTime: newStartTime };
+      }
+      return s;
+    });
+  } else {
+    // get |newStartTime - oldStartTime|
+    const timeOffset = newStartTime - song.startTime!;
+
+    // Assign new startTime to each song relative to the first one
+    updatedSongs = songs.map((s) => {
+      return { ...s, startTime: s.startTime! + timeOffset };
+    });
+  }
+
+  // set new list of songs
+  await db.collection('songs').doc(vodId).set({ playlist: updatedSongs });
+
+  return {
+    status: 200,
+    message: `The timestamp of the song has been changed`,
+  };
+};
+
+// move song to other supachat
+export const moveSong = async (
+  fromVodId: string,
+  toVodId: string,
+  songId: string
+) => {
+  // get songs by fromVodId
+  // get song whose id matches the songId
+  // remove the song from the list of the fromVodId
+  // get songs by toVodId
+  // get startTime and duration of the last song
+  // add moving song to the list with the new startTime
 };

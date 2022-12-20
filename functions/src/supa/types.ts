@@ -31,8 +31,15 @@ type Vod = {
   offset?: number;
 };
 
+type Body = {
+  vodId: string;
+  songId: string;
+  newStartTime: number;
+  changeAll: boolean;
+};
+
 type Request = {
-  body: { offset: number };
+  body: Body;
   headers: ExpressRequest['headers'];
   params: { vodId: string };
 };
