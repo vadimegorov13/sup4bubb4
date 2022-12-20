@@ -36,7 +36,7 @@
       <p
         class="leading-3 px-3 py-1 text-xs font-semibold text-gray-400 mr-2 mb-2"
       >
-        Streamed {date}
+        Streamed on {date}
       </p>
     </div></a
   >

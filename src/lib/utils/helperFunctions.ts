@@ -41,7 +41,7 @@ export const convertHMS = (sec: number) => {
 };
 
 export const getTime = (stream: Stream) => {
-  const date = moment.parseZone(stream.publishedAt).fromNow();
+  const date = moment.parseZone(stream.publishedAt).format('MMM Do YYYY');
   const { durationStr, durationNum } = parseDuration(stream.duration);
 
   return { date, durationStr, durationNum };
