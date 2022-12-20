@@ -258,15 +258,23 @@ export const checkAdmin = async (apiKey: string) => {
 
 // TODO: FINISH this shit
 
-// This function will change the startTime of one song
-// which will change startTime of every other song relative to this one song
+/**
+ * This function will change the startTime of one song
+ * which will change startTime of every other song relative to this one song
+ *
+ * @param vodId To find list of songs
+ * @param songId To find a specific song
+ * @param newStartTime New timestamp
+ * @param changeAll Can change timestamps for every song
+ * @returns status and message
+ */
 export const changeStartTime = async (
   vodId: string,
   songId: string,
   newStartTime: number,
   changeAll: boolean = false
 ) => {
-  // get songs by vodId
+  // Get list of songs by vodId
   const doc = await db.collection('songs').doc(vodId).get();
   const songs: Song[] | undefined = doc.data()?.playlist || undefined;
 
@@ -277,7 +285,8 @@ export const changeStartTime = async (
     };
   }
 
-  const song: Song | undefined = songs.find((song) => song.id === songId);
+  // Check if song exists in the list
+  const song: Song | undefined = songs.find((s) => s.id === songId);
   if (!song) {
     return {
       status: 400,
@@ -288,7 +297,7 @@ export const changeStartTime = async (
   let updatedSongs: Song[];
 
   if (!changeAll) {
-    // Assign new
+    // Assign new startTime to the song
     updatedSongs = songs.map((s) => {
       if (s.id === songId) {
         return { ...s, startTime: newStartTime };
@@ -315,15 +324,57 @@ export const changeStartTime = async (
 };
 
 // move song to other supachat
-export const moveSong = async (
+export const moveOneSong = async (
   fromVodId: string,
   toVodId: string,
   songId: string
 ) => {
-  // get songs by fromVodId
-  // get song whose id matches the songId
-  // remove the song from the list of the fromVodId
-  // get songs by toVodId
+  // Get list of songs by fromVodId
+  const fromDoc = await db.collection('songs').doc(fromVodId).get();
+  let fromSongs: Song[] | undefined = fromDoc.data()?.playlist || undefined;
+
+  if (!fromSongs) {
+    return {
+      status: 400,
+      message: `Vod with id:${fromVodId} doesn't exist`,
+    };
+  }
+
+  // Check if song exists in the list
+  const song: Song | undefined = fromSongs.find((s) => s.id === songId);
+  if (!song) {
+    return {
+      status: 400,
+      message: `Song with id:${songId} doesn't exist in this list`,
+    };
+  }
+
+  // Remove the song from the list of fromVodId
+  let index = fromSongs.indexOf(song);
+  fromSongs.splice(index, 1);
+  await db.collection('songs').doc(fromVodId).set({ playlist: fromSongs });
+
+  // Get list of songs by toVodId
+  const toDoc = await db.collection('songs').doc(toVodId).get();
+  let toSongs: Song[] | undefined = toDoc.data()?.playlist || undefined;
+
+  if (!toSongs) {
+    return {
+      status: 400,
+      message: `Vod with id:${toVodId} doesn't exist`,
+    };
+  }
+
   // get startTime and duration of the last song
+  const lastSong = toSongs[toSongs.length - 1];
+  const newStartTime = lastSong.duration + lastSong.startTime!;
+
   // add moving song to the list with the new startTime
+  toSongs.push({ ...song, startTime: newStartTime });
+  await db.collection('songs').doc(toVodId).set({ playlist: toSongs });
+
+  return {
+    status: 200,
+    message: `The song has been moved`,
+  };
 };

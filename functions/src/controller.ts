@@ -5,6 +5,7 @@ import {
   saveCompleteList,
   updateVodList,
   changeStartTime,
+  moveOneSong,
 } from './supa/supaFunctions';
 import { Request, Song, Vod } from './supa/types';
 
@@ -102,6 +103,36 @@ export const updateStartTime = async (req: Request, res: Response) => {
       newStartTime,
       changeAll
     );
+
+    if (response.status === 200) {
+      return res.status(200).json({
+        status: 'Success',
+        message: response.message,
+      });
+    }
+
+    return res.status(400).json({
+      status: 'Bad Request',
+      message: response.message,
+    });
+  } catch (error: any) {
+    return res.status(500).json({
+      status: 'Internal Server Error',
+      message: error.message,
+    });
+  }
+};
+
+// Move song to a different supachat vod
+export const moveSong = async (req: Request, res: Response) => {
+  await authorize(req, res);
+
+  try {
+    const {
+      body: { fromVodId, toVodId, songId },
+    } = req;
+
+    const response = await moveOneSong(fromVodId, toVodId, songId);
 
     if (response.status === 200) {
       return res.status(200).json({

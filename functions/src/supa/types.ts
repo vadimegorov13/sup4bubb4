@@ -33,6 +33,8 @@ type Vod = {
 
 type Body = {
   vodId: string;
+  fromVodId: string;
+  toVodId: string;
   songId: string;
   newStartTime: number;
   changeAll: boolean;
