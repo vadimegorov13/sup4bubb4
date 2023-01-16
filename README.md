@@ -1,6 +1,6 @@
 # sup4bubb4
 
-A simple app that compiles song requests from bubb4bot and Amelia Watson's superchat reading streams. This website, built for the Vtuber community, allows users to easily access and sync song requests with the VODs on YouTube. Just click on one of the VODs[https://sup4bubb4.com] there and it'll sync up the bubb4bot queue for you.
+A simple app that compiles song requests from bubb4bot and Amelia Watson's superchat reading streams. This website, built for the Vtuber community, allows users to easily access and sync song requests with the VODs on YouTube. Just click on one of the [VODs there](https://sup4bubb4.com) and it'll sync up the bubb4bot queue for you.
 
 ## Features
 - Compile song requests from the StreamElements API during Amelia Watson's live streams
