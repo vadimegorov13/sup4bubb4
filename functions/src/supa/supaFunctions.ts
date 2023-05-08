@@ -3,7 +3,7 @@ import { createHash } from 'crypto';
 import * as rp from 'request-promise';
 import { db } from '../config/firebase';
 import { API_KEY, playlistAPI, SE_API, VIDEOS_API } from './api_urls';
-import { getSongsTiming } from './helperFunctions';
+import { getSongsTiming } from './getSongsTiming';
 import { Song, Vod } from './types';
 
 /**

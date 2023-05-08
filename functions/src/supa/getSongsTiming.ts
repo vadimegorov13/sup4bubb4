@@ -1,3 +1,5 @@
+import { pipe } from 'fp-ts/lib/function';
+import { reverse, mapWithIndex } from 'fp-ts/Array';
 import { Song } from './types';
 
 /**
@@ -26,26 +28,23 @@ import { Song } from './types';
 // };
 
 export const getSongsTiming = async (startTime: string, songs: Song[]) => {
-  const sortedSongs = songs.reverse();
-  const timedSongs = sortedSongs.map((song, i) => {
-    if (i === 0) {
-      return {
-        ...song,
-        startTime:
-          (new Date(song.createdAt).getTime() - new Date(startTime).getTime()) /
-            1000 -
-          song.duration,
-      };
-    } else {
-      return {
-        ...song,
-        startTime:
-          (new Date(sortedSongs[i - 1].createdAt).getTime() -
-            new Date(startTime).getTime()) /
-          1000,
-      };
-    }
-  });
+  const startTimestamp = new Date(startTime).getTime();
+  return pipe(
+    songs,
+    reverse,
+    mapWithIndex((i, song) => {
+      const songTimestamp = new Date(song.createdAt).getTime();
 
-  return timedSongs;
+      const startTime =
+        i === 0
+          ? (songTimestamp - startTimestamp) / 1000 - song.duration
+          : (new Date(songs[i - 1].createdAt).getTime() - startTimestamp) /
+            1000;
+
+      return {
+        ...song,
+        startTime,
+      };
+    })
+  );
 };
