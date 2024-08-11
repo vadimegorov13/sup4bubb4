@@ -9,7 +9,7 @@ import {
   updateStartTime,
   moveSong,
 } from './controller';
-import { updateVodList } from './supa/supaFunctions';
+// import { updateVodList } from './supa/supaFunctions';
 
 const app = express();
 
@@ -24,21 +24,21 @@ app.post('/api/movesong/', moveSong);
 exports.app = functions
   .runWith({
     timeoutSeconds: 540,
-    memory: '512MB' || '2GB',
+    memory: '512MB',
   })
   .https.onRequest(app);
 
 // Check every 12 hours for the new supachat vods
-exports.scheduledDailyUpdate = functions.pubsub
-  .schedule('every 12 hours')
-  .onRun(async () => {
-    console.log('Daily supa vod check');
+// exports.scheduledDailyUpdate = functions.pubsub
+//   .schedule('every 12 hours')
+//   .onRun(async () => {
+//     console.log('Daily supa vod check');
 
-    const vods = await updateVodList();
-    if (vods.length === 0) {
-      console.log('No new supas');
-      return;
-    }
+//     const vods = await updateVodList();
+//     if (vods.length === 0) {
+//       console.log('No new supas');
+//       return;
+//     }
 
-    console.log('Updated supa list');
-  });
+//     console.log('Updated supa list');
+//   });
